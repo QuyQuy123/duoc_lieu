@@ -1,9 +1,30 @@
+let quillArticle = null;
+
+function initArticleEditor() {
+  if (quillArticle) return quillArticle;
+  const el = document.getElementById("editor");
+  if (!el || typeof Quill === "undefined") return null;
+  quillArticle = new Quill(el, {
+    theme: "snow",
+    placeholder: "Nhập nội dung chi tiết...",
+    modules: {
+      toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link", "image"],
+        ["clean"],
+      ],
+    },
+  });
+  return quillArticle;
+}
 var size = 10;
 
 async function loadAllArticle(page) {
   const param = document.getElementById("param").value || "";
   const status = document.getElementById("status").value || "";
-  var url = `http://localhost:8080/api/articles/admin/all?page=${page}&size=${size}&q=${param}`;
+  var url = `/api/articles/admin/all?page=${page}&size=${size}&q=${param}`;
   if(status != ""){
     url += `&status=${status}`
   }
@@ -73,7 +94,7 @@ async function exportArticles() {
   const param = document.getElementById("param").value || "";
   const status = document.getElementById("status").value || "";
 
-  let url = `http://localhost:8080/api/articles/admin/export?q=${encodeURIComponent(param)}`;
+  let url = `/api/articles/admin/export?q=${encodeURIComponent(param)}`;
   if (status !== "") {
     url += `&status=${encodeURIComponent(status)}`;
   }
@@ -107,9 +128,10 @@ async function exportArticles() {
 }
 
 async function loadAArticle() {
+    initArticleEditor();
     var id = window.location.search.split('=')[1];
     if (id != null) {
-        var url = 'http://localhost:8080/api/articles/public/find-by-id?id=' + id;
+        var url = '/api/articles/public/find-by-id?id=' + id;
         const response = await fetch(url, {
             method: 'GET'
         });
@@ -121,7 +143,9 @@ async function loadAArticle() {
         document.getElementById("status").value = result.articleStatus
         document.getElementById("allowComments").value = result.allowComments == true?'yes':'no'
         document.getElementById("isFeatured").value = result.isFeatured == true?'yes':'no'
-        tinyMCE.get('editor').setContent(result.content)
+        if (quillArticle) {
+          quillArticle.root.innerHTML = result.content || '';
+        }
         window.uploadedImageBanner = result.imageBanner;
         document.getElementById("diseases").value = result.diseases?.id
     }
@@ -134,7 +158,8 @@ async function saveBV() {
   const slug = $("#slug").val().trim();
   const excerpt = $("#excerpt").val().trim();
   const diseases = $("#diseases").val();
-  const content = tinymce.get("editor").getContent();
+  const editorInstance = quillArticle || initArticleEditor();
+  const content = editorInstance ? editorInstance.root.innerHTML : '';
   const status = $("#status").val(); // ⚠️ lưu ý: là string, ví dụ "BAN_NHAP"
   const allowComments = $("#allowComments").val() === "yes";
   const isFeatured = $("#isFeatured").val() === "yes";
@@ -163,7 +188,7 @@ async function saveBV() {
 
   // ✅ 3️⃣ Gửi API lưu bài viết
   try {
-    const res = await fetch("http://localhost:8080/api/articles/admin/save", {
+    const res = await fetch("/api/articles/admin/save", {
       method: "POST",
       headers: {
         'Authorization': 'Bearer ' + token,
@@ -196,7 +221,7 @@ async function saveBV() {
 
 async function loadArticleStatus() {
   try {
-    const res = await fetch("http://localhost:8080/api/articles/public/article-status");
+    const res = await fetch("/api/articles/public/article-status");
     if (!res.ok) {
       throw new Error("Không thể lấy danh sách trạng thái");
     }
@@ -217,7 +242,7 @@ async function loadArticleStatus() {
 }
 
 async function loadArticleStatusList() {
-  var res = await fetch("http://localhost:8080/api/articles/public/article-status");
+  var res = await fetch("/api/articles/public/article-status");
   var list = await res.json();
   var main = '<option value="">Tất cả trạng thái</option>';
   list.forEach(s => {
@@ -231,7 +256,7 @@ async function deleteArticle(id) {
     if (con == false) {
         return;
     }
-    var url = 'http://localhost:8080/api/articles/admin/delete?id=' + id;
+    var url = '/api/articles/admin/delete?id=' + id;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: new Headers({
@@ -261,7 +286,7 @@ async function deleteArticle(id) {
 }
 
 async function loadDiseasesList() {
-  var res = await fetch("http://localhost:8080/api/diseases/public/get-all-list");
+  var res = await fetch("/api/diseases/public/get-all-list");
   var list = await res.json();
   var main = '';
   list.forEach(s => {

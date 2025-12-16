@@ -31,21 +31,33 @@ const previewImage = document.getElementById('preview-image'); // Mới
 const removeImageBtn = document.getElementById('remove-image-btn'); // Mới
 
 
-// Hàm mô phỏng API postMethodPayload
+// Gọi API chat thật đến backend
 async function postMethodPayload(url, payload) {
-return new Promise(resolve => {
-setTimeout(() => {
-let reply = "Đã nhận được yêu cầu của bạn. Vui lòng chờ phản hồi chi tiết.";
-if (payload.hasImage) {
-reply = "Cảm ơn bạn đã gửi ảnh! Tôi sẽ xem xét và phản hồi sớm.";
-} else if (payload.message.includes('Menu') || payload.message.includes('món gì')) {
-reply = "Menu hôm nay có Cá hồi áp chảo và Salad Nga.";
-}
-resolve({
-json: () => Promise.resolve({ reply: reply })
-});
-}, 800);
-});
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const status = res.status;
+    let msg = `❌ Lỗi API Chat (HTTP ${status})! Vui lòng kiểm tra endpoint ${url}.`;
+    try {
+      const data = await res.json();
+      if (data && data.reply) {
+        msg = data.reply;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return {
+      json: () => Promise.resolve({ reply: msg })
+    };
+  }
+
+  return res;
 }
 
 // Hàm hiển thị/xóa preview ảnh
@@ -116,43 +128,57 @@ suggestionList.appendChild(itemDiv);
 
 // Hàm gửi tin nhắn (Đã cải tiến)
 async function sendMessage() {
-const message = inputText.value.trim();
+  const message = inputText.value.trim();
+  const fileToSend = selectedFile;
 
-if (!message && !selectedFile) return;
+  if (!message && !fileToSend) return;
 
-// 1. Cập nhật tin nhắn người dùng
-const userMessage = {
-role: "user",
-text: message,
-file: selectedFile
-};
-messages = [...messages, userMessage];
+  // 1. Cập nhật tin nhắn người dùng
+  const userMessage = {
+    role: "user",
+    text: message,
+    file: fileToSend
+  };
+  messages = [...messages, userMessage];
 
-// Xóa nội dung input và file
-inputText.value = "";
-removeImage(); // Xóa preview và reset selectedFile
+  // Xóa nội dung input và file trên UI
+  inputText.value = "";
+  removeImage(); // Xóa preview và reset selectedFile
 
-showSuggestions = false;
-suggestionList.classList.add('hidden');
-renderMessages();
+  showSuggestions = false;
+  suggestionList.classList.add('hidden');
+  renderMessages();
 
-// 2. Gọi API
-const apiPayload = {
-message: userMessage.text,
-hasImage: !!userMessage.file
-};
+  // 2. Chuẩn bị message gửi cho backend (kèm ảnh nếu có)
+  let finalText = message;
+  if (fileToSend) {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(fileToSend);
+    });
+    if (!finalText) {
+      finalText = "Hãy cho tôi biết đây là cây gì trong ảnh.";
+    }
+    finalText += `\nẢnh kèm theo: ${dataUrl}`;
+  }
 
-try {
-const res = await postMethodPayload("/api/chat", apiPayload);
-const data = await res.json();
+  const apiPayload = {
+    message: finalText
+  };
 
-// 3. Cập nhật tin nhắn bot
-messages = [...messages, { role: "bot", text: data.reply }];
-renderMessages();
-} catch (error) {
-messages = [...messages, { role: "bot", text: "Lỗi kết nối! Không thể nhận phản hồi." }];
-renderMessages();
-}
+  try {
+    const res = await postMethodPayload("/api/chat", apiPayload);
+    const data = await res.json();
+
+    // 3. Cập nhật tin nhắn bot
+    messages = [...messages, { role: "bot", text: data.reply }];
+    renderMessages();
+  } catch (error) {
+    messages = [...messages, { role: "bot", text: "Lỗi kết nối! Không thể nhận phản hồi." }];
+    renderMessages();
+  }
 }
 
 // Hàm xử lý khi click vào gợi ý

@@ -1,6 +1,6 @@
 
 async function loadPlantStatus() {
-    const res = await fetch("http://localhost:8080/api/plant/public/all-status");
+    const res = await fetch("/api/plant/public/all-status");
     const statuses = await res.json();
     const select = document.getElementById("status");
     select.innerHTML = "";
@@ -13,7 +13,7 @@ async function loadPlantStatus() {
 }
 
 async function loadPlantStatusSelect() {
-    const res = await fetch("http://localhost:8080/api/plant/public/all-status");
+    const res = await fetch("/api/plant/public/all-status");
     var list = await res.json();
     var main = '<option value="">Tất cả trạng thái</option>';
     list.forEach(s => {
@@ -23,7 +23,7 @@ async function loadPlantStatusSelect() {
 }
 
 async function loadDiseasesSelectAdd() {
-    const res = await fetch("http://localhost:8080/api/diseases/public/get-all-list");
+    const res = await fetch("/api/diseases/public/get-all-list");
     var list = await res.json();
     var main = '';
     list.forEach(s => {
@@ -37,7 +37,7 @@ async function loadDiseasesSelectAdd() {
 }
 
 async function loadFamiliesAdd() {
-    const res = await fetch("http://localhost:8080/api/families/public/all-list");
+    const res = await fetch("/api/families/public/all-list");
     var list = await res.json();
     var main = '';
     list.forEach(s => {
@@ -47,7 +47,7 @@ async function loadFamiliesAdd() {
 }
 
 async function loadFamiliesSelect() {
-    const res = await fetch("http://localhost:8080/api/families/public/all-list");
+    const res = await fetch("/api/families/public/all-list");
     var list = await res.json();
     var main = '<option value="">Tất cả họ thực vật</option>';
     list.forEach(s => {
@@ -61,7 +61,7 @@ async function loadAllPlant(page) {
   const param = document.getElementById("param").value || "";
   const status = document.getElementById("status").value || "";
   const families = document.getElementById("families").value || "";
-  var url = `http://localhost:8080/api/plant/admin/all?page=${page}&size=${size}&q=${param}`;
+  var url = `/api/plant/admin/all?page=${page}&size=${size}&q=${param}`;
   if(status != ""){
     url += `&plantStatus=${status}`
   }
@@ -127,7 +127,7 @@ async function exportPlants() {
   const status = document.getElementById("status").value || "";
   const families = document.getElementById("families").value || "";
 
-  let url = `http://localhost:8080/api/plant/admin/export?q=${encodeURIComponent(param)}`;
+  let url = `/api/plant/admin/export?q=${encodeURIComponent(param)}`;
   if (status !== "") {
     url += `&plantStatus=${encodeURIComponent(status)}`;
   }
@@ -167,7 +167,7 @@ async function exportPlants() {
 async function loadAPlant() {
     var id = window.location.search.split('=')[1];
     if (id != null) {
-        var url = 'http://localhost:8080/api/plant/public/find-by-id?id=' + id;
+        var url = '/api/plant/public/find-by-id?id=' + id;
         const response = await fetch(url, {
             method: 'GET'
         });
@@ -258,7 +258,7 @@ async function savePlant() {
         diseasesIds: $("#diseases").val()
     }
 
-    const response = await fetch(`http://localhost:8080/api/plant/admin/create`, {
+    const response = await fetch(`/api/plant/admin/create`, {
         method: 'POST',
         headers: new Headers({
             'Authorization': 'Bearer ' + token,
@@ -292,7 +292,7 @@ async function deletePlant(id) {
     if (con == false) {
         return;
     }
-    var url = 'http://localhost:8080/api/plant/admin/delete?id=' + id;
+    var url = '/api/plant/admin/delete?id=' + id;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: new Headers({
@@ -328,7 +328,7 @@ async function deleteImageDT(id) {
     if (con == false) {
         return;
     }
-    var url = 'http://localhost:8080/api/plant/admin/delete-image?id=' + id;
+    var url = '/api/plant/admin/delete-image?id=' + id;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: new Headers({
@@ -416,7 +416,7 @@ function initImageUpload() {
         files.forEach(f => formData.append("file", f));
 
         try {
-            const res = await fetch("http://localhost:8080/api/public/upload-multiple-file-order-response", {
+            const res = await fetch("/api/public/upload-multiple-file-order-response", {
                 method: "POST",
                 body: formData
             });

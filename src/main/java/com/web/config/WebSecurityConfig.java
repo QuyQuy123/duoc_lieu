@@ -59,7 +59,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers()
                 .and()
                 .authorizeRequests()
-                // Cho phép truy cập các trang/public không cần đăng nhập
                 .antMatchers(
                         "/",
                         "/index",
@@ -73,19 +72,26 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/image/**",
                         "/webjars/**"
                 ).permitAll()
-                // API public
-                .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/register").permitAll()
-                .antMatchers("/api/public/**").permitAll()
-                // API admin chỉ cho ROLE_ADMIN
+                .antMatchers(
+                        "/api/authenticate",
+                        "/api/login",
+                        "/api/login/**",
+                        "/api/register",
+                        "/api/regis",
+                        "/api/active-account",
+                        "/api/forgot-password",
+                        "/api/send-new-otp",
+                        "/api/chat",
+                        "/api/chat/**",
+                        "/api/public/**",
+                        "/api/*/public/**",
+                        "/api/expert/public/**"
+                ).permitAll()
                 .antMatchers("/api/admin/**").hasAuthority(Contains.ROLE_ADMIN)
-                // Trang HTML admin cho phép truy cập, quyền thực thi đã được check bằng JWT ở các API
-                // (đồng thời có chặn phía client trong admin/js/main.js)
-                .antMatchers("/admin/**").permitAll()
-                // API user cho ROLE_USER hoặc ROLE_ADMIN
                 .antMatchers("/api/user/**").hasAnyAuthority(Contains.ROLE_USER, Contains.ROLE_ADMIN)
-                // Các request còn lại cho phép (tuỳ bạn có muốn siết thêm không)
-                .anyRequest().permitAll()
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/**").permitAll()
+                .antMatchers("/admin/**").permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .apply(securityConfigurerAdapter())
                 .and()

@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -161,8 +162,10 @@ public class UserApi {
     }
 
     @PostMapping("/public/dat-lai-mat-khau")
-    public ResponseEntity<?> datLaiMatKhau(@RequestParam String email, @RequestParam String key,
-                                           @RequestParam String password) throws URISyntaxException {
+    public ResponseEntity<?> datLaiMatKhau(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String key = body.get("key");
+        String password = body.get("password");
         userService.xacNhanDatLaiMatKhau(email, password, key);
         return new ResponseEntity<>(HttpStatus.OK);
     }

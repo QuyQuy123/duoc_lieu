@@ -4,7 +4,7 @@ async function loadAllArticle(page) {
   const param = document.getElementById("param").value || "";
   const diseases = document.getElementById("diseases").value || "";
   const sort = document.getElementById("sort").value
-  var url = `http://localhost:8080/api/articles/public/all?page=${page}&size=${size}&q=${param}&sort=${sort}`;
+  var url = `/api/articles/public/all?page=${page}&size=${size}&q=${param}&sort=${sort}`;
   if(diseases != ""){
     url += `&diseasesId=${diseases}`
   }
@@ -78,7 +78,7 @@ async function loadAllArticle(page) {
 
 
 async function loadDiseasesSelect() {
-    const res = await fetch("http://localhost:8080/api/diseases/public/get-all-list");
+    const res = await fetch("/api/diseases/public/get-all-list");
     var list = await res.json();
     var main = '<option value="">Tất cả công dụng</option>';
     list.forEach(s => {

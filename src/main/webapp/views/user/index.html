@@ -41,7 +41,7 @@
   <div class="container" style="max-width:600px;">
     <div class="input-group input-group-lg">
       <span class="input-group-text"><i class="bi bi-search"></i></span>
-      <input type="text" class="form-control" placeholder="Tìm kiếm cây dược liệu...">
+      <input type="text" class="form-control" id="homePlantSearch" placeholder="Tìm kiếm cây dược liệu...">
     </div>
   </div>
 </section>
@@ -122,5 +122,24 @@
 </footer>
 <th:block th:replace="user/chat :: chatMain">
 </th:block>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var input = document.getElementById('homePlantSearch');
+    if (!input) return;
+
+    function goSearch() {
+      var q = input.value.trim();
+      if (!q) return;
+      window.location.href = '/plant?search=' + encodeURIComponent(q);
+    }
+
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        goSearch();
+      }
+    });
+  });
+</script>
 </body>
 </html>

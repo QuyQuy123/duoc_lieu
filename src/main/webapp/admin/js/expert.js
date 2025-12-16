@@ -1,8 +1,37 @@
 var size = 10;
 
+const quillExpertEditors = {
+    education: null,
+    bio: null,
+    achievements: null,
+};
+
+function initExpertEditors() {
+    const toolbar = [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link"],
+        ["clean"],
+    ];
+    if (typeof Quill === "undefined") return;
+    const eduEl = document.getElementById("educationEditor");
+    const bioEl = document.getElementById("bioEditor");
+    const achEl = document.getElementById("achievementsEditor");
+    if (eduEl && !quillExpertEditors.education) {
+        quillExpertEditors.education = new Quill(eduEl, { theme: "snow", placeholder: "Nhập quá trình học vấn...", modules: { toolbar } });
+    }
+    if (bioEl && !quillExpertEditors.bio) {
+        quillExpertEditors.bio = new Quill(bioEl, { theme: "snow", placeholder: "Nhập tiểu sử chi tiết...", modules: { toolbar } });
+    }
+    if (achEl && !quillExpertEditors.achievements) {
+        quillExpertEditors.achievements = new Quill(achEl, { theme: "snow", placeholder: "Nhập các thành tựu nổi bật...", modules: { toolbar } });
+    }
+}
+
 async function loadAllExpert(page) {
     const param = document.getElementById("param").value || "";
-    var url = `http://localhost:8080/api/expert/admin/all?page=${page}&size=${size}&q=${param}`;
+    var url = `/api/expert/admin/all?page=${page}&size=${size}&q=${param}`;
     const response = await fetch(url, {
         method: 'GET',
         headers: new Headers({
@@ -59,10 +88,11 @@ async function loadAllExpert(page) {
 }
 
 async function loadAExpert() {
+    initExpertEditors();
     var id = window.location.search.split('=')[1];
 
     if (id != null) {
-        var url = 'http://localhost:8080/api/expert/public/find-by-id?id=' + id;
+        var url = '/api/expert/public/find-by-id?id=' + id;
 
         try {
             const response = await fetch(url, {
@@ -97,11 +127,9 @@ async function loadAExpert() {
             document.getElementById("contactEmail").value = result.contactEmail || '';
             document.getElementById("expertPhone").value = result.phone || '';
 
-            // --- TinyMCE Editors (Nội dung HTML lớn) ---
-            // Cần kiểm tra xem TinyMCE đã sẵn sàng chưa, sau đó mới set nội dung
-            tinymce.get('educationEditor').setContent(result.education || '');
-            tinymce.get('bioEditor').setContent(result.bio || '');
-            tinymce.get('achievementsEditor').setContent(result.achievements || '');
+            if (quillExpertEditors.education) quillExpertEditors.education.root.innerHTML = result.education || '';
+            if (quillExpertEditors.bio) quillExpertEditors.bio.root.innerHTML = result.bio || '';
+            if (quillExpertEditors.achievements) quillExpertEditors.achievements.root.innerHTML = result.achievements || '';
 
             // --- Ảnh đại diện (Avatar) ---
             if (result.avatar) {
@@ -123,6 +151,7 @@ async function loadAExpert() {
     }
 }
 async function saveExpert() {
+    initExpertEditors();
     // 1. Lấy dữ liệu từ các input cơ bản
     const name = document.getElementById('expertName').value.trim();
     const slug = document.getElementById('slug').value.trim();
@@ -134,9 +163,9 @@ async function saveExpert() {
     const phone = document.getElementById('expertPhone').value.trim();
     const avatar = window.uploadedExpertAvatar || null; // Lấy URL ảnh đã upload
 
-    const education = tinymce.get('educationEditor').getContent();
-    const bio = tinymce.get('bioEditor').getContent();
-    const achievements = tinymce.get('achievementsEditor').getContent();
+    const education = quillExpertEditors.education ? quillExpertEditors.education.root.innerHTML : '';
+    const bio = quillExpertEditors.bio ? quillExpertEditors.bio.root.innerHTML : '';
+    const achievements = quillExpertEditors.achievements ? quillExpertEditors.achievements.root.innerHTML : '';
 
     // 3. Kiểm tra dữ liệu bắt buộc
     if (!name || !slug || !specialization) {
@@ -162,7 +191,7 @@ async function saveExpert() {
     // 4. Gửi dữ liệu lên API
     console.log("Dữ liệu chuyên gia chuẩn bị gửi:", expertData);
 
-    const response = await fetch('http://localhost:8080/api/expert/admin/create', {
+    const response = await fetch('/api/expert/admin/create', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -189,7 +218,7 @@ async function saveExpert() {
 
 
 async function loadArticleStatusList() {
-    var res = await fetch("http://localhost:8080/api/articles/public/article-status");
+    var res = await fetch("/api/articles/public/article-status");
     var list = await res.json();
     var main = '<option value="">Tất cả trạng thái</option>';
     list.forEach(s => {
@@ -203,7 +232,7 @@ async function deleteExpert(id) {
     if (con == false) {
         return;
     }
-    var url = 'http://localhost:8080/api/expert/admin/delete?id=' + id;
+    var url = '/api/expert/admin/delete?id=' + id;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: new Headers({

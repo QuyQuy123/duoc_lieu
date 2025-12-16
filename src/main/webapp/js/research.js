@@ -4,7 +4,7 @@ async function loadAllResearch(page) {
     const param = document.getElementById("param").value || "";
     const field = document.getElementById("field").value || "";
     const year = document.getElementById("year").value
-    var url = `http://localhost:8080/api/research/public/all?page=${page}&size=${size}&q=${param}&sort=id,desc`;
+    var url = `/api/research/public/all?page=${page}&size=${size}&q=${param}&sort=id,desc`;
     if(field != ""){
         url += `&field=${field}`
     }

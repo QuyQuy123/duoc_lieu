@@ -295,7 +295,7 @@
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:8080/api/public/upload-file", {
+            const res = await fetch("/api/public/upload-file", {
                 method: "POST",
                 body: formData
             });
@@ -334,7 +334,7 @@
         const formData = new FormData();
         formData.append("file", file);
         try {
-            const res = await fetch("http://localhost:8080/api/public/upload-file", {
+            const res = await fetch("/api/public/upload-file", {
                 method: "POST",
                 body: formData
             });

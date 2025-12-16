@@ -3,6 +3,7 @@ package com.web.jwt;
 import com.web.dto.CustomUserDetails;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,28 +20,21 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtTokenProvider {
 
-    private final String JWT_SECRET = "abcdefgh";
-
     private static final String AUTHORITIES_KEY = "roles";
 
-    private final long JWT_EXPIRATION = 604800000L;
+    @Value("${security.jwt.secret}")
+    private String jwtSecret;
 
+    private final long jwtExpiration = 604800000L;
 
-
-    public void test(){
-        System.out.println("oke");
-    }
-
-    // Tạo ra jwt từ thông tin user
     public String generateToken(CustomUserDetails userDetails) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION);
-        // Tạo chuỗi json web token từ id của user.
+        Date expiryDate = new Date(now.getTime() + jwtExpiration);
         return Jwts.builder()
                 .setSubject(Long.toString(userDetails.getUser().getId()))
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .claim("roles",userDetails.getAuthorities().toString())
                 .compact();
     }
@@ -48,16 +42,15 @@ public class JwtTokenProvider {
     // Lấy thông tin user từ jwt
     public Long getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(JWT_SECRET)
+                .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody();
-        Date date = claims.getExpiration();
         return Long.parseLong(claims.getSubject());
     }
 
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(JWT_SECRET).parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException ex) {
             log.error("Invalid JWT token");
@@ -75,7 +68,7 @@ public class JwtTokenProvider {
         Claims claims = null;
         try {
             claims = Jwts.parser()
-                    .setSigningKey(JWT_SECRET)
+                    .setSigningKey(jwtSecret)
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {

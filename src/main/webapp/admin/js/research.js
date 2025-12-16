@@ -1,9 +1,30 @@
+let quillResearch = null;
+
+function initResearchEditor() {
+    if (quillResearch) return quillResearch;
+    const el = document.getElementById("editor");
+    if (!el || typeof Quill === "undefined") return null;
+    quillResearch = new Quill(el, {
+        theme: "snow",
+        placeholder: "Nhập nội dung chi tiết...",
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ["bold", "italic", "underline", "strike"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                ["link", "image"],
+                ["clean"],
+            ],
+        },
+    });
+    return quillResearch;
+}
 var size = 10;
 
 async function loadAllResearch(page) {
   const param = document.getElementById("param").value || "";
   const status = document.getElementById("status").value || "";
-  var url = `http://localhost:8080/api/research/admin/all?page=${page}&size=${size}&q=${param}`;
+  var url = `/api/research/admin/all?page=${page}&size=${size}&q=${param}`;
   if(status != ""){
     url += `&status=${status}`
   }
@@ -61,7 +82,7 @@ async function exportResearch() {
   const param = document.getElementById("param").value || "";
   const status = document.getElementById("status").value || "";
 
-  let url = `http://localhost:8080/api/research/admin/export?q=${encodeURIComponent(param)}`;
+  let url = `/api/research/admin/export?q=${encodeURIComponent(param)}`;
   if (status !== "") {
     url += `&status=${encodeURIComponent(status)}`;
   }
@@ -95,7 +116,7 @@ async function exportResearch() {
 }
 
 async function loadResearchStatusList() {
-  var res = await fetch("http://localhost:8080/api/research/public/research-status");
+  var res = await fetch("/api/research/public/research-status");
   var list = await res.json();
   var main = '<option value="">Tất cả trạng thái</option>';
   list.forEach(s => {
@@ -106,7 +127,7 @@ async function loadResearchStatusList() {
 
 
 async function loadResearchStatus() {
-  var res = await fetch("http://localhost:8080/api/research/public/research-status");
+  var res = await fetch("/api/research/public/research-status");
   var list = await res.json();
   var main = '';
   list.forEach(s => {
@@ -116,7 +137,7 @@ async function loadResearchStatus() {
 }
 
 async function loadPlants() {
-    const res = await fetch("http://localhost:8080/api/plant/admin/all-name", {
+    const res = await fetch("/api/plant/admin/all-name", {
         method: 'GET',
         headers: new Headers({
         'Authorization': 'Bearer ' + token
@@ -139,7 +160,7 @@ async function deleteResearch(id) {
     if (con == false) {
         return;
     }
-    var url = 'http://localhost:8080/api/research/admin/delete?id=' + id;
+    var url = '/api/research/admin/delete?id=' + id;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: new Headers({
@@ -170,6 +191,7 @@ async function deleteResearch(id) {
 
 
 async function saveReseach() {
+    const editorInstance = initResearchEditor();
     var uls = new URL(document.URL)
     var idPlant = uls.searchParams.get("id");
     var dto = 
@@ -179,7 +201,7 @@ async function saveReseach() {
             title:document.getElementById("title").value,
             slug:document.getElementById("slug").value,
             abstractText:document.getElementById("abstractText").value,
-            content:tinymce.get("editor").getContent(),
+            content: editorInstance ? editorInstance.root.innerHTML : '',
             authors:document.getElementById("authors").value,
             institution:document.getElementById("institution").value,
             publishedYear:document.getElementById("publishedYear").value,
@@ -192,7 +214,7 @@ async function saveReseach() {
         plantId: $("#plants").val()
     }
 
-    const response = await fetch(`http://localhost:8080/api/research/admin/save`, {
+    const response = await fetch(`/api/research/admin/save`, {
         method: 'POST',
         headers: new Headers({
             'Authorization': 'Bearer ' + token,
@@ -221,9 +243,10 @@ async function saveReseach() {
 
 
 async function loadAResearch() {
+    initResearchEditor();
     var id = window.location.search.split('=')[1];
     if (id != null) {
-        var url = 'http://localhost:8080/api/research/public/find-by-id?id=' + id;
+        var url = '/api/research/public/find-by-id?id=' + id;
         const response = await fetch(url, {
             method: 'GET'
         });
@@ -239,7 +262,9 @@ async function loadAResearch() {
         document.getElementById("field").value = result.field
         document.getElementById("previewWrapper").innerHTML = `<img src="${result.imageBanner}" class="img-fluid rounded" />`
         document.getElementById("status").value = result.researchStatus
-        tinyMCE.get('editor').setContent(result.content)
+        if (quillResearch) {
+            quillResearch.root.innerHTML = result.content || '';
+        }
         window.uploadedImageBanner = result.imageBanner;
         window.documentPlant = result.linkDocument;
         if(result.linkDocument != null){

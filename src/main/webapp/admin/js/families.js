@@ -3,7 +3,7 @@ var size = 10;
 // ================= LOAD DANH SÁCH =================
 async function loadAllFamilies(page) {
   const param = document.getElementById("param").value || "";
-  const url = `http://localhost:8080/api/families/public/all?page=${page}&size=${size}&search=${param}`;
+  const url = `/api/families/public/all?page=${page}&size=${size}&search=${param}`;
 
   const response = await fetch(url, {
     method: 'GET',
@@ -69,7 +69,7 @@ async function saveFamily() {
   const data = { id, name, description, slug };
   
 
-  const url = `http://localhost:8080/api/families/admin/create`;
+  const url = `/api/families/admin/create`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -103,7 +103,7 @@ async function deleteFamily(id) {
   const confirmDel = confirm("Bạn có chắc muốn xóa họ thực vật này?");
   if (!confirmDel) return;
 
-  const url = `http://localhost:8080/api/families/admin/delete?id=${id}`;
+  const url = `/api/families/admin/delete?id=${id}`;
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -127,7 +127,7 @@ async function deleteFamily(id) {
 
 // ================= SỬA =================
 async function editFamily(id) {
-  const url = `http://localhost:8080/api/families/public/find-by-id?id=${id}`;
+  const url = `/api/families/public/find-by-id?id=${id}`;
   const response = await fetch(url, {
     headers: new Headers({
       'Authorization': 'Bearer ' + token
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
  */
 async function exportFamilies() {
   const param = document.getElementById("param").value || "";
-  let url = `http://localhost:8080/api/families/admin/export?search=${encodeURIComponent(param)}`;
+  let url = `/api/families/admin/export?search=${encodeURIComponent(param)}`;
 
   try {
     const response = await fetch(url, {

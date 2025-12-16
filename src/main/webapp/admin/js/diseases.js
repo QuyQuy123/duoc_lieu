@@ -2,7 +2,7 @@ var size = 10;
 
 async function loadAllDiseases(page) {
   const param = document.getElementById("param").value || "";
-  const url = `http://localhost:8080/api/diseases/public/get-all?page=${page}&size=${size}&q=${param}`;
+  const url = `/api/diseases/public/get-all?page=${page}&size=${size}&q=${param}`;
 
   const response = await fetch(url, {
     method: 'GET',
@@ -68,7 +68,7 @@ async function saveDisease() {
 
   const data = { id, name, description, slug };
 
-  const url = `http://localhost:8080/api/diseases/admin/create`;
+  const url = `/api/diseases/admin/create`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -102,7 +102,7 @@ async function deleteDisease(id) {
   const confirmDel = confirm("Bạn có chắc muốn xóa bệnh này?");
   if (!confirmDel) return;
 
-  const url = `http://localhost:8080/api/diseases/admin/delete?id=${id}`;
+  const url = `/api/diseases/admin/delete?id=${id}`;
 
   const response = await fetch(url, {
     method: 'DELETE',
@@ -126,7 +126,7 @@ async function deleteDisease(id) {
 
 // ================= SỬA =================
 async function editDisease(id) {
-  const url = `http://localhost:8080/api/diseases/public/find-by-id?id=${id}`;
+  const url = `/api/diseases/public/find-by-id?id=${id}`;
   const response = await fetch(url, {
     headers: new Headers({
       'Authorization': 'Bearer ' + token
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
  */
 async function exportDiseases() {
   const param = document.getElementById("param").value || "";
-  let url = `http://localhost:8080/api/diseases/admin/export?q=${encodeURIComponent(param)}`;
+  let url = `/api/diseases/admin/export?q=${encodeURIComponent(param)}`;
 
   try {
     const response = await fetch(url, {

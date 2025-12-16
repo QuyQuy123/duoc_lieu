@@ -16,6 +16,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="stylesheet" href="/admin/css/styleadmin.css">
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
   <script src="/admin/js/main.js"></script>
   <script src="/admin/js/research.js"></script>
   <script>
@@ -96,7 +97,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">&ThinSpace;</label>
-                        <textarea class="form-control" id="editor" placeholder="Nhập nội dung chi tiết..."></textarea>
+                        <div id="editor" style="height: 320px;"></div>
                     </div>
                     </div>
                 </div>
@@ -166,7 +167,7 @@
   </div>
 </body>
 
-<script src="https://cdn.tiny.cloud/1/f6s0gxhkpepxkws8jawvfwtj0l9lv0xjgq1swbv4lgcy3au3/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
 $(document).ready(function () {
     const year = new Date().getFullYear();
@@ -191,7 +192,7 @@ $(document).ready(function () {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:8080/api/public/upload-file", {
+      const res = await fetch("/api/public/upload-file", {
         method: "POST",
         body: formData,
       });
@@ -282,7 +283,7 @@ $(document).ready(function () {
         const formData = new FormData();
         formData.append("file", file);
         try {
-            const res = await fetch("http://localhost:8080/api/public/upload-file", {
+            const res = await fetch("/api/public/upload-file", {
                 method: "POST",
                 body: formData
             });
@@ -304,37 +305,6 @@ $(document).ready(function () {
             btnSave.prop("disabled", false).text("Lưu");
         }
     });
-</script>
-
-<script>
-  tinymce.init({
-    selector: 'textarea#editor', // Chọn textarea có id là 'editor'
-    // Tăng cường các plugin để hỗ trợ nhiều chức năng hơn
-    plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak ' +
-            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking ' +
-            'table emoticons template paste codesample help',
-    // Định nghĩa các nút trên thanh công cụ. Chia thành nhiều dòng để dễ quản lý.
-    toolbar: 'undo redo | blocks | ' + // Hoàn tác, làm lại, và định dạng khối (Heading 1, 2, Paragraph,...)
-            'bold italic underline strikethrough | forecolor backcolor | ' + // Định dạng chữ: đậm, nghiêng, gạch chân, gạch ngang, màu chữ, màu nền
-            'alignleft aligncenter alignright alignjustify | outdent indent | ' + // Căn lề, lùi dòng
-            'numlist bullist | link image media table | ' + // Danh sách số, danh sách dấu chấm, chèn liên kết, ảnh, video, bảng
-            'charmap emoticons | fullscreen code preview | help', // Ký tự đặc biệt, biểu tượng cảm xúc, chế độ toàn màn hình, xem trước, mã nguồn, trợ giúp
-    height: 600, // Tăng chiều cao của trình soạn thảo
-    menubar: 'file edit view insert format tools table help', // Hiện thêm menu bar ở trên cùng
-    images_upload_handler: async function (blobInfo, success, failure) {
-      const formData = new FormData();
-      formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-      const res = await fetch('http://localhost:8080/api/public/upload-file', {
-        method: 'POST',
-        body: formData
-      });
-      if (res.status < 300) {
-        var linkImage = await res.text();
-        success(linkImage);
-      }
-    }
-  });
 </script>
 
   <script>

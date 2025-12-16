@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
   <script src="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.2/js/toastr.min.js"></script>
   <link rel="stylesheet" href="/admin/css/styleadmin.css">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
   <script src="/admin/js/main.js"></script>
   <script src="/admin/js/expert.js"></script>
   <script>
@@ -136,15 +137,15 @@
                 <div class="card-body">
                   <div class="mb-4">
                     <label for="educationEditor" class="form-label">Quá trình Học vấn và Đào tạo</label>
-                    <textarea class="form-control" id="educationEditor" placeholder="Nhập quá trình học vấn..."></textarea>
+                    <div id="educationEditor" style="height: 220px;"></div>
                   </div>
                   <div class="mb-4">
                     <label for="bioEditor" class="form-label">Tiểu sử/Kinh nghiệm làm việc</label>
-                    <textarea class="form-control" id="bioEditor" placeholder="Nhập tiểu sử chi tiết..."></textarea>
+                    <div id="bioEditor" style="height: 220px;"></div>
                   </div>
                   <div class="mb-4">
                     <label for="achievementsEditor" class="form-label">Thành tựu và Giải thưởng</label>
-                    <textarea class="form-control" id="achievementsEditor" placeholder="Nhập các thành tựu nổi bật..."></textarea>
+                    <div id="achievementsEditor" style="height: 220px;"></div>
                   </div>
                 </div>
               </div>
@@ -157,7 +158,7 @@
 </div>
 </body>
 
-<script src="https://cdn.tiny.cloud/1/f6s0gxhkpepxkws8jawvfwtj0l9lv0xjgq1swbv4lgcy3au3/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 <script>
   // Chuyển toàn bộ logic upload, drag/drop, paste image và remove image
   // từ file gốc sang áp dụng cho Avatar.
@@ -178,7 +179,7 @@
       formData.append("file", file);
 
       try {
-        const res = await fetch("http://localhost:8080/api/public/upload-file", {
+        const res = await fetch("/api/public/upload-file", {
           method: "POST",
           body: formData,
         });
@@ -254,37 +255,6 @@
       dropZone.innerHTML = `<span class="text-muted">Chưa có ảnh</span>`;
       $(this).prop("disabled", true);
     });
-  });
-</script>
-
-<script>
-  // Khởi tạo TinyMCE cho các trường lớn: education, bio, achievements
-  tinymce.init({
-    selector: 'textarea#educationEditor, textarea#bioEditor, textarea#achievementsEditor',
-    plugins: 'advlist autolink lists link image charmap print preview hr anchor pagebreak ' +
-            'searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking ' +
-            'table emoticons template paste codesample help',
-    toolbar: 'undo redo | blocks | ' +
-            'bold italic underline strikethrough | forecolor backcolor | ' +
-            'alignleft aligncenter alignright alignjustify | outdent indent | ' +
-            'numlist bullist | link image media table | ' +
-            'fullscreen code preview | help',
-    height: 300, // Chiều cao vừa phải cho từng mục
-    menubar: 'file edit view insert format tools table help',
-    // Logic upload ảnh cho nội dung TinyMCE
-    images_upload_handler: async function (blobInfo, success, failure) {
-      const formData = new FormData();
-      formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-      const res = await fetch('http://localhost:8080/api/public/upload-file', {
-        method: 'POST',
-        body: formData
-      });
-      if (res.status < 300) {
-        var linkImage = await res.text();
-        success(linkImage);
-      }
-    }
   });
 </script>
 

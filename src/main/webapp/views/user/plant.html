@@ -17,7 +17,13 @@
       window.onload = async function(){
         await loadDiseasesSelect();
         await loadFamiliesSelect();
-        clickSelect()
+        clickSelect();
+        const params = new URLSearchParams(window.location.search);
+        const searchQ = params.get('search');
+        if (searchQ) {
+          const input = document.getElementById("param");
+          if (input) input.value = searchQ;
+        }
         loadAllPlant(0);
       }
     </script>

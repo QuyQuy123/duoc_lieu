@@ -34,7 +34,7 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
                 (:q IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(p.contactEmail) LIKE LOWER(CONCAT('%', :q, '%'))
                 OR LOWER(p.title) LIKE LOWER(CONCAT('%', :q, '%')))
-                AND (:specialization IS NULL OR p.specialization = :specialization) 
+                AND (:specialization IS NULL OR LOWER(p.specialization) LIKE LOWER(CONCAT('%', :specialization, '%')))
             """)
     Page<Expert> findAllByParam(String q, String specialization, Pageable pageable);
 

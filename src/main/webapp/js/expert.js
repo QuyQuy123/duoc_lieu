@@ -1,4 +1,4 @@
-const EXPERT_API_URL = 'http://localhost:8080/api/expert/public/all';
+const EXPERT_API_URL = '/api/expert/public/all';
 let currentPage = 0;
 let currentSearch = '';
 let currentSpecialization = '';
@@ -8,40 +8,38 @@ let currentSort = ''; // 'name-asc', 'newest', etc.
 // HÀM CHÍNH: GỌI API VÀ HIỂN THỊ DỮ LIỆU
 // ===========================================
 async function loadExperts(page = 0, q = '', specialization = '', sort = '') {
-    // 1. Chuẩn bị tham số truy vấn
-    let url = new URL(EXPERT_API_URL);
-    url.searchParams.append('page', page);
-    url.searchParams.append('size', 9); // Giả định mỗi trang 9 chuyên gia (3 cột * 3 hàng)
-
-    if (q) {
-        url.searchParams.append('q', q);
-    }
-    if (specialization) {
-        url.searchParams.append('specialization', specialization);
-    }
-
-    // Xử lý sắp xếp (Mặc định API có thể xử lý 'sort=field,direction')
-    if (sort) {
-        let sortField = '';
-        let sortDirection = '';
-
-        if (sort === 'name-asc') {
-            sortField = 'name';
-            sortDirection = 'asc';
-        } else if (sort === 'name-desc') {
-            sortField = 'name';
-            sortDirection = 'desc';
-        } else if (sort === 'newest') {
-            sortField = 'createdDate'; // Giả định field này có trong BaseEntity
-            sortDirection = 'desc';
-        }
-
-        if(sortField) {
-            url.searchParams.append('sort', `${sortField},${sortDirection}`);
-        }
-    }
-
     try {
+        const url = new URL(EXPERT_API_URL, window.location.origin);
+        url.searchParams.append('page', page);
+        url.searchParams.append('size', 9);
+
+        if (q) {
+            url.searchParams.append('q', q);
+        }
+        if (specialization) {
+            url.searchParams.append('specialization', specialization);
+        }
+
+        if (sort) {
+            let sortField = '';
+            let sortDirection = '';
+
+            if (sort === 'name-asc') {
+                sortField = 'name';
+                sortDirection = 'asc';
+            } else if (sort === 'name-desc') {
+                sortField = 'name';
+                sortDirection = 'desc';
+            } else if (sort === 'newest') {
+                sortField = 'createdDate';
+                sortDirection = 'desc';
+            }
+
+            if(sortField) {
+                url.searchParams.append('sort', `${sortField},${sortDirection}`);
+            }
+        }
+
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -183,8 +181,7 @@ function renderPagination(pageData) {
 // ===========================================
 // XỬ LÝ SỰ KIỆN TÌM KIẾM VÀ LỌC
 // ===========================================
-$(document).ready(function() {
-    // Tải lần đầu khi trang load
+document.addEventListener('DOMContentLoaded', function() {
     loadExperts(currentPage, currentSearch, currentSpecialization, currentSort);
 
     // 1. Xử lý Tìm kiếm (Input type="text")

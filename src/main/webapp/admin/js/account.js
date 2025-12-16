@@ -1,7 +1,7 @@
 var size = 10;
 async function loadAllUser(page) {
     var param = document.getElementById("param").value
-    var url = 'http://localhost:8080/api/admin/get-user-by-role?page=' + page + '&size=' + size + '&q=' + param;
+    var url = '/api/admin/get-user-by-role?page=' + page + '&size=' + size + '&q=' + param;
     var role = document.getElementById("role").value
     if (role != "") {
         url += '&role=' + role
@@ -50,7 +50,7 @@ async function loadAllUser(page) {
 
 
 async function loadAuthority() {
-    var url = 'http://localhost:8080/api/admin/authority';
+    var url = '/api/admin/authority';
     const response = await fetch(url, {
         headers: new Headers({
             'Authorization': 'Bearer ' + token
@@ -67,20 +67,37 @@ async function loadAuthority() {
 
 
 async function addAccount() {
-    if(document.getElementById("password").value != document.getElementById("confirm-password").value){
-        toastr.error("Mật khẩu không trùng khớp"); return;
-    }
     var uls = new URL(document.URL)
     var id = uls.searchParams.get("id");
-    if(document.getElementById("password").value == '' && id == null){
-        toastr.error("Mật khẩu không được để trống"); return;
+
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    // tạo mới: bắt buộc có mật khẩu + xác nhận đúng
+    if (!id) {
+        if (!password) {
+            toastr.error("Mật khẩu không được để trống"); 
+            return;
+        }
+        if (password !== confirmPassword) {
+            toastr.error("Mật khẩu không trùng khớp"); 
+            return;
+        }
+    } else {
+        // sửa: chỉ kiểm tra khi admin nhập mật khẩu mới
+        if (password || confirmPassword) {
+            if (password !== confirmPassword) {
+                toastr.error("Mật khẩu không trùng khớp"); 
+                return;
+            }
+        }
     }
+
     var user = {
         "id":id,
         "fullname": document.getElementById("fullname").value,
         "phone": document.getElementById("phone").value,
         "email": document.getElementById("email").value,
-        "password": document.getElementById("password").value,
         "username": document.getElementById("username").value,
         "address": document.getElementById("address").value,
         "actived": document.getElementById("actived").checked,
@@ -88,7 +105,11 @@ async function addAccount() {
             "name":document.getElementById("role").value
         },
     }
-    const res = await fetch('http://localhost:8080/api/admin/addaccount', {
+    // chỉ gửi password khi tạo mới hoặc khi admin nhập mật khẩu mới
+    if (!id || password) {
+        user.password = password;
+    }
+    const res = await fetch('/api/admin/addaccount', {
         method: 'POST',
         headers: new Headers({
             'Authorization': 'Bearer ' + token,
@@ -121,7 +142,7 @@ async function loadAUser() {
     var id = window.location.search.split('=')[1];
     if (id != null) {
         document.getElementById("note-pass").style.display = 'block';
-        const response = await fetch('http://localhost:8080/api/admin/find-user-by-id?id=' + id, {
+        const response = await fetch('/api/admin/find-user-by-id?id=' + id, {
             headers: new Headers({
                 'Authorization': 'Bearer ' + token
             })
@@ -134,6 +155,20 @@ async function loadAUser() {
         document.getElementById("fullname").value = user.fullname
         document.getElementById("role").value = user.authorities.name
         document.getElementById("actived").checked = user.actived
+
+        // cập nhật text giao diện cho trường hợp sửa người dùng
+        const title = document.querySelector("h1.h4");
+        if (title) {
+            title.innerText = "Cập nhật người dùng";
+        }
+        const subtitle = document.querySelector("p.text-muted.small");
+        if (subtitle) {
+            subtitle.innerText = "Chỉnh sửa thông tin tài khoản người dùng";
+        }
+        const primaryBtn = document.querySelector(".create-user-btn-primary");
+        if (primaryBtn) {
+            primaryBtn.innerText = "Lưu";
+        }
     }
 }
 
@@ -144,7 +179,7 @@ async function deleteAccount(id) {
     if (con == false) {
         return;
     }
-    var url = 'http://localhost:8080/api/admin/delete-user-by-id?id=' + id;
+    var url = '/api/admin/delete-user-by-id?id=' + id;
     const response = await fetch(url, {
         method: 'DELETE',
         headers: new Headers({
@@ -180,7 +215,7 @@ async function exportUsers() {
     const param = document.getElementById("param").value || "";
     const role = document.getElementById("role").value || "";
 
-    let url = `http://localhost:8080/api/admin/export-users?q=${encodeURIComponent(param)}`;
+    let url = `/api/admin/export-users?q=${encodeURIComponent(param)}`;
     if (role !== "") {
         url += `&role=${encodeURIComponent(role)}`;
     }

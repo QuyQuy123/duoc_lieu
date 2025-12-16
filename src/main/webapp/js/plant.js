@@ -1,6 +1,6 @@
 async function loadPlantIndex() {
-    var url = 'http://localhost:8080/api/plant/public/cay-noi-bat-index' 
-    const response = await fetch('http://localhost:8080/api/plant/public/cay-noi-bat-index' , {
+    var url = '/api/plant/public/cay-noi-bat-index' 
+    const response = await fetch('/api/plant/public/cay-noi-bat-index' , {
     });
     var list = await response.json();
 
@@ -24,7 +24,7 @@ async function loadPlantIndex() {
 }
 
 async function loadDiseasesSelect() {
-    const res = await fetch("http://localhost:8080/api/diseases/public/get-all-list");
+    const res = await fetch("/api/diseases/public/get-all-list");
     var list = await res.json();
     var main = '';
     list.forEach(s => {
@@ -38,7 +38,7 @@ async function loadDiseasesSelect() {
 }
 
 async function loadFamiliesSelect() {
-    const res = await fetch("http://localhost:8080/api/families/public/all-list");
+    const res = await fetch("/api/families/public/all-list");
     var list = await res.json();
     var main = '';
     list.forEach(s => {
@@ -57,7 +57,7 @@ async function loadAllPlant(page) {
   const diseases = $("#diseases").val()
   const families = $("#families").val()
   const sort = document.getElementById("sort").value
-  var url = `http://localhost:8080/api/plant/public/all?page=${page}&size=${size}&sort=${sort}`;
+  var url = `/api/plant/public/all?page=${page}&size=${size}&sort=${sort}`;
   var payload = {
     "search":param,
     "familiesId":families,
