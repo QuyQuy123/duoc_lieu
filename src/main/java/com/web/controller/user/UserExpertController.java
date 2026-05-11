@@ -27,7 +27,7 @@ public class UserExpertController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "expert not found");
         }
         model.addAttribute("expert", expert.get());
-        return "user/expert-detail.html";
+        return "user/expert-detail";
     }
 
 }

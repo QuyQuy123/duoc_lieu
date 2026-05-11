@@ -29,6 +29,6 @@ public class CustomErrorController implements ErrorController {
                 return "error/500";
             }
         }
-        return "error/error.html";
+        return "error/500";
     }
 }

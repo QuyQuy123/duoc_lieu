@@ -24,6 +24,6 @@ public class UserPlantController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "plant not found");
         }
         model.addAttribute("plant", plant);
-        return "user/plant-detail.html";
+        return "user/plant-detail";
     }
 }

@@ -26,6 +26,6 @@ public class UserResearchController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Research not found");
         }
         model.addAttribute("research", research);
-        return "user/research-detail.html";
+        return "user/research-detail";
     }
 }
