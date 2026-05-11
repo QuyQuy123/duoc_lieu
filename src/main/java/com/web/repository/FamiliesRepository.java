@@ -18,9 +18,18 @@ public interface FamiliesRepository extends JpaRepository<Families, Long>, JpaSp
     @Query("select f from Families f where f.name like %?1%")
     Page<Families> findAllByParam(String search, Pageable pageable);
 
+    @Query("select f.id as id, f.name as name, f.description as description from Families f where f.name like %?1%")
+    Page<FamiliesAdminListView> findAdminListByParam(String search, Pageable pageable);
+
     @Query("select f from Families f order by f.name asc")
     List<Families> findAllByAscName();
 
     @Query("select f from Families f where (:q is null or lower(f.name) like lower(concat('%', :q, '%')))")
     List<Families> findAllForExport(String q);
+
+    interface FamiliesAdminListView {
+        Long getId();
+        String getName();
+        String getDescription();
+    }
 }

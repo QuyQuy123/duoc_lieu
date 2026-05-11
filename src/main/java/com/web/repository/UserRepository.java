@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,9 +42,51 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("select u from User u where u.authorities.name = ?2 and (u.email like ?1 or u.fullname like ?1 or u.username like ?1 or u.phone like ?1 )")
     Page<User> getUserByRole(String seearch,String role, Pageable pageable);
 
+    @Query("""
+            select u.id as id,
+                   u.fullname as fullname,
+                   u.username as username,
+                   u.userType as userType,
+                   u.email as email,
+                   a.name as authorityName,
+                   u.actived as actived,
+                   u.createdDate as createdDate
+            from User u
+            left join u.authorities a
+            where a.name = ?2
+              and (u.email like ?1 or u.fullname like ?1 or u.username like ?1 or u.phone like ?1)
+            """)
+    Page<UserAdminListView> getAdminListByRole(String search, String role, Pageable pageable);
+
     @Query("select u from User u where u.email like ?1 or u.fullname like ?1 or u.phone like ?1 or u.username like ?1")
     Page<User> findAll(String search,Pageable pageable);
 
+    @Query("""
+            select u.id as id,
+                   u.fullname as fullname,
+                   u.username as username,
+                   u.userType as userType,
+                   u.email as email,
+                   a.name as authorityName,
+                   u.actived as actived,
+                   u.createdDate as createdDate
+            from User u
+            left join u.authorities a
+            where u.email like ?1 or u.fullname like ?1 or u.phone like ?1 or u.username like ?1
+            """)
+    Page<UserAdminListView> findAdminList(String search, Pageable pageable);
+
     @Query("select u.username from User u where u.id = ?1")
     String findUsernameById(Long id);
+
+    interface UserAdminListView {
+        Long getId();
+        String getFullname();
+        String getUsername();
+        Object getUserType();
+        String getEmail();
+        String getAuthorityName();
+        Boolean getActived();
+        LocalDateTime getCreatedDate();
+    }
 }

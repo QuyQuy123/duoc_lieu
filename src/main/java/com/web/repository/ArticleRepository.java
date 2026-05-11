@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.web.entity.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -26,6 +27,26 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
               AND (:status IS NULL OR a.articleStatus = :status)
             """)
     Page<Article> findAllByParam(String search, ArticleStatus status, Pageable pageable);
+
+    @Query("""
+            SELECT a.id as id,
+                   a.imageBanner as imageBanner,
+                   a.title as title,
+                   d.name as diseasesName,
+                   a.excerpt as excerpt,
+                   u.fullname as userFullname,
+                   a.views as views,
+                   a.articleStatus as articleStatus,
+                   a.createdAt as createdAt,
+                   a.updatedAt as updatedAt
+            FROM Article a
+            LEFT JOIN a.diseases d
+            LEFT JOIN a.user u
+            WHERE (:search IS NULL OR LOWER(a.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(a.excerpt) LIKE LOWER(CONCAT('%', :search, '%')))
+              AND (:status IS NULL OR a.articleStatus = :status)
+            """)
+    Page<ArticleAdminListView> findAdminList(String search, ArticleStatus status, Pageable pageable);
 
     @Query("""
             SELECT a FROM Article a
@@ -46,4 +67,25 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
               AND (:status IS NULL OR a.articleStatus = :status)
             """)
     java.util.List<Article> findAllForExport(String search, ArticleStatus status);
+
+    interface ArticleAdminListView {
+        Long getId();
+        String getImageBanner();
+        String getTitle();
+        String getDiseasesName();
+        String getExcerpt();
+        String getUserFullname();
+        Long getViews();
+        ArticleStatus getArticleStatus();
+        LocalDateTime getCreatedAt();
+        LocalDateTime getUpdatedAt();
+
+        default String getColor() {
+            return getArticleStatus() == null ? "" : getArticleStatus().getColor();
+        }
+
+        default String getStatusLabel() {
+            return getArticleStatus() == null ? "" : getArticleStatus().getLabel();
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.web.api;
 import com.web.entity.Article;
 import com.web.enums.ArticleStatus;
+import com.web.repository.ArticleRepository;
 import com.web.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public class ArticleApi {
     private ArticleService articleService;
 
     @GetMapping("/admin/all")
-    public Page<Article> getAll(
+    public Page<ArticleRepository.ArticleAdminListView> getAll(
           Pageable pageable,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) ArticleStatus status

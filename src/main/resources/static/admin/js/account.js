@@ -28,7 +28,7 @@ async function loadAllUser(page) {
                     <td>${listUser[i].fullname}</td>
                     <td>${listUser[i].username} ${listUser[i].userType == 'EMAIL'?'':'<img src="/image/google.png" class="img-icon">'}</td>
                     <td>${listUser[i].email}</td>
-                    <td>${listUser[i].authorities.name}</td>
+                    <td>${listUser[i].authorityName || ""}</td>
                     <td><span class="badge p-2 ${listUser[i].actived == true?'badge-active':'badge-inactive'}">
                     ${listUser[i].actived == true ?'Hoạt động':'Đang khóa'}
                     </span></td>

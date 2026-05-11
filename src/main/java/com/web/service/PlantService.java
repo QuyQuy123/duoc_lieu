@@ -68,10 +68,10 @@ public class PlantService {
         return null;
     }
 
-    public Page<Plant> getAllByAdmin(Pageable pageable, String q, Long familiesId,PlantStatus plantStatus) {
+    public Page<PlantRepository.PlantAdminListView> getAllByAdmin(Pageable pageable, String q, Long familiesId,PlantStatus plantStatus) {
         // Xử lý chuỗi tìm kiếm: loại bỏ khoảng trắng đầu cuối, nếu rỗng thì set null
         String search = (q != null && !q.trim().isEmpty()) ? q.trim() : null;
-        return plantRepository.searchByAdmin(search, familiesId, plantStatus, pageable);
+        return plantRepository.searchAdminList(search, familiesId, plantStatus, pageable);
     }
 
     public Page<Plant> getAllByPublic(Pageable pageable, PlantSearch search) {

@@ -27,8 +27,8 @@ public class ExpertService {
         return expert;
     }
 
-    public Page<Expert> getAll(String search, Pageable pageable) {
-        return expertRepository.findAllByParam(
+    public Page<ExpertRepository.ExpertAdminListView> getAll(String search, Pageable pageable) {
+        return expertRepository.findAdminList(
                 (search == null || search.trim().isEmpty()) ? null : search.trim(),
                 pageable
         );

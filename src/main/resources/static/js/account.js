@@ -18,7 +18,7 @@ async function sendLoginRequestToBackend(accessToken) {
         localStorage.setItem("user", JSON.stringify(result.user));
         localStorage.setItem("token", result.token);
         if (result.user.authorities.name === "ROLE_ADMIN") {
-            window.location.href = 'admin/index';
+            window.location.href = 'admin/dashboard';
         }
         if (result.user.authorities.name === "ROLE_USER") {
             window.location.href = 'index';
@@ -60,7 +60,7 @@ async function login() {
         localStorage.setItem("user", JSON.stringify(result.user));
         localStorage.setItem("token", result.token);
         if (result.user.authorities.name === "ROLE_ADMIN") {
-            window.location.href = 'admin/list-user';
+            window.location.href = 'admin/dashboard';
         }
         if (result.user.authorities.name === "ROLE_USER") {
             window.location.href = 'index';

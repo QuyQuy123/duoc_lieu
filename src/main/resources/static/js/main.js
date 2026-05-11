@@ -1,4 +1,10 @@
 var token = localStorage.getItem("token");
+var currentUser = null;
+try {
+    currentUser = JSON.parse(localStorage.getItem("user"));
+} catch (e) {
+    currentUser = null;
+}
 const exceptionCode = 417;
 $( document ).ready(function() {
     var auth = `<a href="/login" class="btn btn-light btn-custom-login">
@@ -8,12 +14,19 @@ $( document ).ready(function() {
             <i class="bi bi-person"></i> Đăng ký
           </a>`
     if(token != null){
+        var isAdmin = currentUser && currentUser.authorities && currentUser.authorities.name === "ROLE_ADMIN";
+        var accountAction = isAdmin
+            ? `<a href="/admin/dashboard" class="btn btn-custom-manage">
+                <i class="bi bi-speedometer2"></i> Quản lí
+              </a>`
+            : `<a href="/my-account" class="btn btn-custom-register">
+                <i class="bi bi-person"></i> Tài khoản
+              </a>`;
+
         auth = `
-        <a href="#" onclick="logout()" class="btn btn-light btn-custom-login">
+          ${accountAction}
+          <a href="#" onclick="logout()" class="btn btn-light btn-custom-login">
             <i class="bi bi-box-arrow-in-left"></i> Đăng xuất
-          </a>
-          <a href="/regis" class="btn btn-custom-register">
-            <i class="bi bi-person"></i> Tài khoản
           </a>
         `
     }

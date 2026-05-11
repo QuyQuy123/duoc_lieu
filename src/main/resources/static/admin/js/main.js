@@ -21,7 +21,8 @@ $( document ).ready(function() {
         <span class="ms-2 brand">DuocLieuVN</span>
       </div>
       <nav class="flex-grow-1 p-2" id="navmain">
-        <a href="/" class="nav-link"><i data-lucide="layout-dashboard" class="me-2"></i>Trang chủ</a>
+        <a href="/" class="nav-link"><i data-lucide="home" class="me-2"></i>Trang chủ</a>
+        <a href="/admin/dashboard" class="nav-link"><i data-lucide="layout-dashboard" class="me-2"></i>Dashboard</a>
         <a href="/admin/list-plant" class="nav-link"><i data-lucide="leaf" class="me-2"></i>Cây dược liệu</a>
         <a href="/admin/list-article" class="nav-link"><i data-lucide="file-text" class="me-2"></i>Bài viết</a>
         <a href="/admin/list-research" class="nav-link"><i data-lucide="book-open" class="me-2"></i>Nghiên cứu</a>

@@ -101,7 +101,7 @@ async function loadAllPlant(page) {
         <td><img src="${d.image}" class="img-table"></td>
         <td>${d.name}</td>
         <td>${d.scientificName}</td>
-        <td>${d.families?.name}</td>
+        <td>${d.familyName || ""}</td>
         <td>${d.partsUsed}</td>
         <td><span class="badge" style="background:${d.color}">${d.statusLabel}</span></td>
         <td>${d.createdAt}</td>

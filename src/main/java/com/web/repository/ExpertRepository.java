@@ -29,6 +29,22 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     Page<Expert> findAllByParam(String q, Pageable pageable);
 
     @Query("""
+            SELECT p.id as id,
+                   p.avatar as avatar,
+                   p.name as name,
+                   p.contactEmail as contactEmail,
+                   p.phone as phone,
+                   p.specialization as specialization,
+                   p.institution as institution
+            FROM Expert p
+            WHERE
+                (:q IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.contactEmail) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.title) LIKE LOWER(CONCAT('%', :q, '%')))
+            """)
+    Page<ExpertAdminListView> findAdminList(String q, Pageable pageable);
+
+    @Query("""
             SELECT p FROM Expert p
             WHERE 
                 (:q IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
@@ -39,4 +55,14 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
     Page<Expert> findAllByParam(String q, String specialization, Pageable pageable);
 
     boolean existsBySlug(String slug);
+
+    interface ExpertAdminListView {
+        Long getId();
+        String getAvatar();
+        String getName();
+        String getContactEmail();
+        String getPhone();
+        String getSpecialization();
+        String getInstitution();
+    }
 }

@@ -60,9 +60,9 @@ async function loadAllArticle(page) {
         <td>${d.id}</td>
         <td><img src="${d.imageBanner}" class="img-table"></td>
         <td>${d.title}</td>
-        <td>${d.diseases?.name}</td>
+        <td>${d.diseasesName || ""}</td>
         <td>${d.excerpt}</td>
-        <td>${d.user.fullname}</td>
+        <td>${d.userFullname || ""}</td>
         <td>${d.views}</td>
         <td><span class="badge" style="background:${d.color}">${d.statusLabel}</span></td>
         <td>${d.createdAt}</td>

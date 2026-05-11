@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.web.dto.response.PlantWithMedia;
 import com.web.entity.Plant;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,32 @@ public interface PlantRepository extends JpaRepository<Plant, Long>, JpaSpecific
             AND (:plantStatus IS NULL OR p.plantStatus = :plantStatus)
             """)
     Page<Plant> searchByAdmin(
+            @Param("q") String q,
+            @Param("familiesId") Long familiesId,
+            @Param("plantStatus") PlantStatus plantStatus,
+            Pageable pageable
+    );
+
+    @Query("""
+            SELECT p.id as id,
+                   p.image as image,
+                   p.name as name,
+                   p.scientificName as scientificName,
+                   f.name as familyName,
+                   p.partsUsed as partsUsed,
+                   p.plantStatus as plantStatus,
+                   p.createdAt as createdAt,
+                   p.updatedAt as updatedAt
+            FROM Plant p
+            LEFT JOIN p.families f
+            WHERE
+                (:q IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.scientificName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.otherNames) LIKE LOWER(CONCAT('%', :q, '%')))
+            AND (:familiesId IS NULL OR p.families.id = :familiesId)
+            AND (:plantStatus IS NULL OR p.plantStatus = :plantStatus)
+            """)
+    Page<PlantAdminListView> searchAdminList(
             @Param("q") String q,
             @Param("familiesId") Long familiesId,
             @Param("plantStatus") PlantStatus plantStatus,
@@ -72,4 +99,24 @@ public interface PlantRepository extends JpaRepository<Plant, Long>, JpaSpecific
 
     @Query("select p.id as id, p.name as name from Plant p order by p.name asc ")
     List<PlantImp> findAllName();
+
+    interface PlantAdminListView {
+        Long getId();
+        String getImage();
+        String getName();
+        String getScientificName();
+        String getFamilyName();
+        String getPartsUsed();
+        PlantStatus getPlantStatus();
+        LocalDateTime getCreatedAt();
+        LocalDateTime getUpdatedAt();
+
+        default String getColor() {
+            return getPlantStatus() == null ? "" : getPlantStatus().getColor();
+        }
+
+        default String getStatusLabel() {
+            return getPlantStatus() == null ? "" : getPlantStatus().getLabel();
+        }
+    }
 }

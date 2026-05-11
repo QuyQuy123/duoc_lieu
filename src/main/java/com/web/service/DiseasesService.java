@@ -20,11 +20,11 @@ public class DiseasesService {
     private DiseasesRepository diseasesRepository;
 
     // ✅ Lấy danh sách có tìm kiếm + phân trang
-    public Page<Diseases> findAllByParam(String search, Pageable pageable) {
+    public Page<DiseasesRepository.DiseasesAdminListView> findAllByParam(String search, Pageable pageable) {
         if (search == null || search.trim().isEmpty()) {
-            return diseasesRepository.findAll(pageable);
+            return diseasesRepository.findAdminList(pageable);
         }
-        return diseasesRepository.findAllByParam(search.trim(), pageable);
+        return diseasesRepository.findAdminListByParam(search.trim(), pageable);
     }
 
     // ✅ Lấy theo ID

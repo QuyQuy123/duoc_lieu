@@ -27,8 +27,8 @@ public class ArticleService {
     @Autowired
     private UserUtils userUtils;
 
-    public Page<Article> getAll(String search, ArticleStatus status, Pageable pageable) {
-        return articleRepository.findAllByParam(
+    public Page<ArticleRepository.ArticleAdminListView> getAll(String search, ArticleStatus status, Pageable pageable) {
+        return articleRepository.findAdminList(
                 (search == null || search.trim().isEmpty()) ? null : search.trim(),
                 status,
                 pageable

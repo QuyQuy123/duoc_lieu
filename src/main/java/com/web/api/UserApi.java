@@ -115,7 +115,8 @@ public class UserApi {
     public ResponseEntity<?> getUserByRole(@RequestParam(value = "role", required = false) String role,
                                            @RequestParam(value = "q", required = false) String search,
                                            Pageable pageable){
-        Page<User> userDtos = userService.getUserByRole("%"+search+"%",role,pageable);
+        String q = (search == null || search.trim().isEmpty()) ? "%%" : "%" + search.trim() + "%";
+        Page<?> userDtos = userService.getUserByRole(q,role,pageable);
         return new ResponseEntity<>(userDtos, HttpStatus.OK);
     }
 

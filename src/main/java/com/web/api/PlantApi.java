@@ -5,6 +5,7 @@ import com.web.dto.PlantSearch;
 import com.web.dto.request.PlantRequestDto;
 import com.web.entity.Plant;
 import com.web.enums.PlantStatus;
+import com.web.repository.PlantRepository;
 import com.web.service.PlantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,7 @@ public class PlantApi {
     private PlantService plantService;
 
     @GetMapping("/admin/all")
-    public Page<Plant> getAll(
+    public Page<PlantRepository.PlantAdminListView> getAll(
             Pageable pageable,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Long familiesId,

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import com.web.entity.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -22,6 +23,23 @@ public interface ResearchRepository extends JpaRepository<Research, Long>, JpaSp
               AND (:status IS NULL OR a.researchStatus = :status)
             """)
     Page<Research> findAllByParam(String search, ResearchStatus status, Pageable pageable);
+
+    @Query("""
+            SELECT r.id as id,
+                   r.imageBanner as imageBanner,
+                   r.title as title,
+                   r.authors as authors,
+                   r.publishedYear as publishedYear,
+                   r.researchStatus as researchStatus,
+                   r.views as views,
+                   r.createdAt as createdAt,
+                   r.updatedAt as updatedAt
+            FROM Research r
+            WHERE (:search IS NULL OR LOWER(r.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(r.authors) LIKE LOWER(CONCAT('%', :search, '%')))
+              AND (:status IS NULL OR r.researchStatus = :status)
+            """)
+    Page<ResearchAdminListView> findAdminList(String search, ResearchStatus status, Pageable pageable);
 
     @Query("""
             SELECT a FROM Research a
@@ -44,4 +62,24 @@ public interface ResearchRepository extends JpaRepository<Research, Long>, JpaSp
               AND (:status IS NULL OR a.researchStatus = :status)
             """)
     java.util.List<Research> findAllForExport(String search, ResearchStatus status);
+
+    interface ResearchAdminListView {
+        Long getId();
+        String getImageBanner();
+        String getTitle();
+        String getAuthors();
+        Integer getPublishedYear();
+        ResearchStatus getResearchStatus();
+        Integer getViews();
+        LocalDateTime getCreatedAt();
+        LocalDateTime getUpdatedAt();
+
+        default String getColor() {
+            return getResearchStatus() == null ? "" : getResearchStatus().getColor();
+        }
+
+        default String getStatusLabel() {
+            return getResearchStatus() == null ? "" : getResearchStatus().getLabel();
+        }
+    }
 }

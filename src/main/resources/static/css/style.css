@@ -22,6 +22,20 @@ body { font-family: system-ui, sans-serif; }
       display:flex;align-items:center;gap:.4rem;
     }
     .btn-custom-register:hover { background:#15803d; color:#fff; }
+    .btn-custom-manage {
+      background: linear-gradient(135deg, #16a34a, #047857);
+      color:#fff;
+      border:0;
+      border-radius:.5rem;
+      display:flex;align-items:center;gap:.4rem;
+      font-weight:600;
+      box-shadow: 0 6px 14px rgba(22, 163, 74, .22);
+    }
+    .btn-custom-manage:hover {
+      background: linear-gradient(135deg, #15803d, #065f46);
+      color:#fff;
+      transform: translateY(-1px);
+    }
     footer { background:#064e3b; color:#d1fae5; }
     footer a { color:#d1fae5; text-decoration:none; }
     footer a:hover { color:#fff; }

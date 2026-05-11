@@ -1,5 +1,6 @@
 package com.web.api;
 import com.web.entity.Diseases;
+import com.web.repository.DiseasesRepository;
 import com.web.service.DiseasesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,7 @@ public class DiseasesApi {
     private DiseasesService diseasesService;
 
     @GetMapping("/public/get-all")
-    public ResponseEntity<Page<Diseases>> getAll(Pageable pageable, @RequestParam(required = false) String q) {
+    public ResponseEntity<Page<DiseasesRepository.DiseasesAdminListView>> getAll(Pageable pageable, @RequestParam(required = false) String q) {
         return ResponseEntity.ok(diseasesService.findAllByParam(q, pageable));
     }
 

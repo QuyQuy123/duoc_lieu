@@ -190,13 +190,13 @@ public class UserService {
     }
 
     
-    public Page<User> getUserByRole(String search, String role, Pageable pageable) {
-        Page<User> page = null;
+    public Page<UserRepository.UserAdminListView> getUserByRole(String search, String role, Pageable pageable) {
+        Page<UserRepository.UserAdminListView> page = null;
         if(role != null){
-            page = userRepository.getUserByRole(search,role, pageable);
+            page = userRepository.getAdminListByRole(search,role, pageable);
         }
         else{
-            page = userRepository.findAll(search,pageable);
+            page = userRepository.findAdminList(search,pageable);
         }
         return page;
     }
@@ -315,17 +315,17 @@ public class UserService {
     public void writeUsersToCsv(Writer writer, String q, String role) {
         try {
             String search = (q != null) ? "%" + q.trim() + "%" : "%%";
-            Page<User> page = getUserByRole(search, role, Pageable.unpaged());
-            List<User> list = page.getContent();
+            Page<UserRepository.UserAdminListView> page = getUserByRole(search, role, Pageable.unpaged());
+            List<UserRepository.UserAdminListView> list = page.getContent();
             writer.write("ID,FULLNAME,USERNAME,EMAIL,ROLE,TRANG_THAI,NGAY_TAO\n");
-            for (User u : list) {
+            for (UserRepository.UserAdminListView u : list) {
                 String line = String.format(
                         "%d,%s,%s,%s,%s,%s,%s\n",
                         u.getId(),
                         escapeCsv(u.getFullname()),
                         escapeCsv(u.getUsername()),
                         escapeCsv(u.getEmail()),
-                        u.getAuthorities() != null ? escapeCsv(u.getAuthorities().getName()) : "",
+                        escapeCsv(u.getAuthorityName()),
                         Boolean.TRUE.equals(u.getActived()) ? "ACTIVE" : "INACTIVE",
                         u.getCreatedDate() != null ? u.getCreatedDate().toString() : ""
                 );

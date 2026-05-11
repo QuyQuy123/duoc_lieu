@@ -4,6 +4,7 @@ import com.web.entity.Article;
 import com.web.entity.Diseases;
 import com.web.entity.Expert;
 import com.web.enums.ArticleStatus;
+import com.web.repository.ExpertRepository;
 import com.web.service.DiseasesService;
 import com.web.service.ExpertService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class ExpertApi {
     private ExpertService expertService;
 
     @GetMapping("/admin/all")
-    public Page<Expert> getAll(Pageable pageable,@RequestParam(required = false) String q) {
+    public Page<ExpertRepository.ExpertAdminListView> getAll(Pageable pageable,@RequestParam(required = false) String q) {
         return expertService.getAll(q, pageable);
     }
 

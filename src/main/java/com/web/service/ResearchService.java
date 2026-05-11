@@ -31,8 +31,8 @@ public class ResearchService {
     @Autowired
     private ResearchPlantRepository researchPlantRepository;
 
-    public Page<Research> getAll(String search, ResearchStatus status, Pageable pageable) {
-        return researchRepository.findAllByParam(
+    public Page<ResearchRepository.ResearchAdminListView> getAll(String search, ResearchStatus status, Pageable pageable) {
+        return researchRepository.findAdminList(
                 (search == null || search.trim().isEmpty()) ? null : search.trim(),
                 status,
                 pageable

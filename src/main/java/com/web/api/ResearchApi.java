@@ -3,6 +3,7 @@ package com.web.api;
 import com.web.dto.ResearchRequest;
 import com.web.entity.Research;
 import com.web.enums.ResearchStatus;
+import com.web.repository.ResearchRepository;
 import com.web.service.ResearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,7 +25,7 @@ public class ResearchApi {
     private ResearchService researchService;
 
     @GetMapping("/admin/all")
-    public Page<Research> getAll(
+    public Page<ResearchRepository.ResearchAdminListView> getAll(
             Pageable pageable,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) ResearchStatus status

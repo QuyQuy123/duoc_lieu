@@ -22,8 +22,9 @@ public class FamiliesService {
     /**
      * Lấy danh sách tất cả families
      */
-    public Page<Families> findAll(Pageable pageable, String search) {
-        return familiesRepository.findAllByParam(search, pageable);
+    public Page<FamiliesRepository.FamiliesAdminListView> findAll(Pageable pageable, String search) {
+        String q = search == null ? "" : search.trim();
+        return familiesRepository.findAdminListByParam(q, pageable);
     }
 
     /**

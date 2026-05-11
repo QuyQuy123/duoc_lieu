@@ -18,6 +18,18 @@ public interface DiseasesRepository extends JpaRepository<Diseases, Long>, JpaSp
     @Query("select d from Diseases d where d.name like %?1%")
     Page<Diseases> findAllByParam(String search, Pageable pageable);
 
+    @Query("select d.id as id, d.name as name, d.description as description from Diseases d where d.name like %?1%")
+    Page<DiseasesAdminListView> findAdminListByParam(String search, Pageable pageable);
+
+    @Query("select d.id as id, d.name as name, d.description as description from Diseases d")
+    Page<DiseasesAdminListView> findAdminList(Pageable pageable);
+
     @Query("select d from Diseases d where (:q is null or lower(d.name) like lower(concat('%', :q, '%')))")
     java.util.List<Diseases> findAllForExport(String q);
+
+    interface DiseasesAdminListView {
+        Long getId();
+        String getName();
+        String getDescription();
+    }
 }
