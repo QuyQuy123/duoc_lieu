@@ -13,19 +13,25 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="/js/main.js"></script>
     <script>
-        // JS chỉ còn lại logic cho Modal (xem ảnh lớn)
-        $(document).ready(function() {
-            $('.image-gallery img').on('click', function() {
-                const imageUrl = $(this).attr('src');
-                $('#modalImage').attr('src', imageUrl);
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageModal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+
+            imageModal.addEventListener('show.bs.modal', function(event) {
+                const triggerImage = event.relatedTarget;
+                const imageUrl = triggerImage?.getAttribute('src') || '';
+                modalImage.setAttribute('src', imageUrl);
+            });
+
+            imageModal.addEventListener('hidden.bs.modal', function() {
+                modalImage.setAttribute('src', '');
             });
         });
-        /* Giả định màu primary của bạn là màu xanh lá đậm */
+    </script>
+    <style>
         :root {
             --bs-primary: #198754;
         }
-    </script>
-    <style>
         .plant-image-main {
             width: 100%;
             height: 350px;
@@ -65,7 +71,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
-            <li class="breadcrumb-item"><a th:href="@{/list-plant}">Cây Dược Liệu</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/plant}">Cây Dược Liệu</a></li>
             <li class="breadcrumb-item active" aria-current="page" th:text="${plant.name}">Tên Cây</li>
         </ol>
     </nav>

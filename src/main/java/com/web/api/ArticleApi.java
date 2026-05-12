@@ -32,7 +32,7 @@ public class ArticleApi {
     }
 
     @GetMapping("/public/all")
-    public Page<Article> getAllPublic(
+    public Page<ArticleRepository.ArticlePublicListView> getAllPublic(
           Pageable pageable,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Long diseasesId

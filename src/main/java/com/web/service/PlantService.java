@@ -3,7 +3,6 @@ package com.web.service;
 import com.web.dto.PlantImp;
 import com.web.dto.PlantSearch;
 import com.web.dto.request.PlantRequestDto;
-import com.web.dto.specification.PlantSpecification;
 import com.web.entity.Diseases;
 import com.web.entity.Plant;
 import com.web.entity.PlantDiseases;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,9 +74,25 @@ public class PlantService {
         return plantRepository.searchAdminList(search, familiesId, plantStatus, pageable);
     }
 
-    public Page<Plant> getAllByPublic(Pageable pageable, PlantSearch search) {
-        PlantSpecification plantSpecification = new PlantSpecification(search.getSearch(), search.getFamiliesId(), search.getDiseases());
-        return plantRepository.findAll(plantSpecification, pageable);
+    public Page<PlantRepository.PlantPublicListView> getAllByPublic(Pageable pageable, PlantSearch search) {
+        PlantSearch safeSearch = search == null ? new PlantSearch() : search;
+        String q = (safeSearch.getSearch() != null && !safeSearch.getSearch().trim().isEmpty())
+                ? safeSearch.getSearch().trim()
+                : null;
+        List<Long> familiesId = safeSearch.getFamiliesId() == null ? Collections.emptyList() : safeSearch.getFamiliesId();
+        List<Long> diseases = safeSearch.getDiseases() == null ? Collections.emptyList() : safeSearch.getDiseases();
+        boolean familiesEmpty = familiesId.isEmpty();
+        boolean diseasesEmpty = diseases.isEmpty();
+
+        return plantRepository.searchPublicList(
+                q,
+                familiesEmpty,
+                familiesEmpty ? Collections.singletonList(-1L) : familiesId,
+                diseasesEmpty,
+                diseasesEmpty ? Collections.singletonList(-1L) : diseases,
+                PlantStatus.DA_XUAT_BAN,
+                pageable
+        );
     }
 
     public void delete(Long id) {

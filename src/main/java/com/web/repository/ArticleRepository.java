@@ -57,6 +57,27 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
             """)
     Page<Article> findAllByParam(String search,Long diseasesId, Pageable pageable);
 
+    @Query("""
+            SELECT a.id as id,
+                   a.imageBanner as imageBanner,
+                   a.title as title,
+                   a.slug as slug,
+                   d.name as diseasesName,
+                   a.excerpt as excerpt,
+                   u.fullname as userFullname,
+                   a.views as views,
+                   a.isFeatured as isFeatured,
+                   a.createdAt as createdAt
+            FROM Article a
+            LEFT JOIN a.diseases d
+            LEFT JOIN a.user u
+            WHERE (:search IS NULL OR LOWER(a.title) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(a.excerpt) LIKE LOWER(CONCAT('%', :search, '%')))
+              AND (:diseasesId IS NULL OR a.diseases.id = :diseasesId)
+              AND a.articleStatus = 'DA_XUAT_BAN'
+            """)
+    Page<ArticlePublicListView> findPublicList(String search, Long diseasesId, Pageable pageable);
+
     @Query("select a from Article a where a.slug = ?1")
     Optional<Article> findBySlug(String slug);
 
@@ -87,5 +108,18 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, JpaSpec
         default String getStatusLabel() {
             return getArticleStatus() == null ? "" : getArticleStatus().getLabel();
         }
+    }
+
+    interface ArticlePublicListView {
+        Long getId();
+        String getImageBanner();
+        String getTitle();
+        String getSlug();
+        String getDiseasesName();
+        String getExcerpt();
+        String getUserFullname();
+        Long getViews();
+        Boolean getIsFeatured();
+        LocalDateTime getCreatedAt();
     }
 }

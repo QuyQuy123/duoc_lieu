@@ -1,4 +1,24 @@
 var size = 8;
+var articleSearchTimeout = null;
+
+function debounceLoadAllArticle() {
+  clearTimeout(articleSearchTimeout);
+  articleSearchTimeout = setTimeout(() => loadAllArticle(0), 300);
+}
+
+function formatArticleDate(value) {
+  if (!value) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    const [year, month, day, hour = 0, minute = 0] = value;
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")} ${String(day).padStart(2, "0")}/${String(month).padStart(2, "0")}/${year}`;
+  }
+  return "";
+}
 
 async function loadAllArticle(page) {
   const param = document.getElementById("param").value || "";
@@ -18,23 +38,26 @@ async function loadAllArticle(page) {
   let mainGrid = '';
   for (let i = 0; i < list.length; i++) {
     const d = list[i];
+    const createdAt = formatArticleDate(d.createdAt);
+    const authorName = d.userFullname || "Không rõ tác giả";
+    const diseasesName = d.diseasesName || "Chưa phân loại";
     main += 
     `
     <div class="col-sm-6 col-lg-3">
         <div class="card h-100 shadow-sm">
         <div class="ratio ratio-16x9 bg-light d-flex align-items-center justify-content-center">
-            <a href="/article-detail/${d.slug}"><img src="${d.imageBanner}" class="img-blog-list"></a>
+            <a href="/article-detail/${d.slug}"><img src="${d.imageBanner}" class="img-blog-list" loading="lazy"></a>
         </div>
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-2">
             ${d.isFeatured==true?`<span class="badge bg-success">Nổi bật</span>`:''}
-            <small class="text-muted"><i class="bi bi-calendar me-1"></i>${d.createdAt}</small>
+            <small class="text-muted"><i class="bi bi-calendar me-1"></i>${createdAt}</small>
             </div>
             <h5 class="card-title"><a class="tag-a" href="/article-detail/${d.slug}">${d.title}</a></h5>
             <p class="card-text text-muted">${d.excerpt}</p>
         </div>
         <div class="card-footer d-flex justify-content-between align-items-center">
-            <small class="text-muted"><i class="bi bi-person me-1"></i>${d.user?.fullname}</small>
+            <small class="text-muted"><i class="bi bi-person me-1"></i>${authorName}</small>
             <a href="/article-detail/${d.slug}" class="btn btn-outline-primary btn-sm">Đọc tiếp</a>
         </div>
         </div>
@@ -46,18 +69,18 @@ async function loadAllArticle(page) {
     <div class="card mb-3 shadow-sm">
         <div class="row g-0">
             <div class="col-md-4 bg-light d-flex align-items-center justify-content-center" style="min-height:200px">
-             <img src="${d.imageBanner}" style="width:100%">
+             <img src="${d.imageBanner}" style="width:100%" loading="lazy">
             </div>
             <div class="col-md-8">
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
-                        <span class="badge bg-primary">${d.diseases.name}</span>
-                        <small class="text-muted"><i class="bi bi-calendar me-1"></i>${d.createdAt}</small>
+                        <span class="badge bg-primary">${diseasesName}</span>
+                        <small class="text-muted"><i class="bi bi-calendar me-1"></i>${createdAt}</small>
                     </div>
                     <h5 class="card-title">${d.title}</h5>
                     <p class="card-text text-muted">${d.excerpt}</p>
                     <div class="d-flex justify-content-between">
-                        <small class="text-muted">Tác giả: ${d.user?.fullname}</small>
+                        <small class="text-muted">Tác giả: ${authorName}</small>
                         <small class="text-muted">Lượt xem: ${d.views}</small>
                     </div>
                     <div class="text-end mt-3">

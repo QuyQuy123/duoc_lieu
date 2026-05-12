@@ -13,8 +13,9 @@
     <script src="js/article.js"></script>
     <script>
       window.onload = async function(){
-        await loadDiseasesSelect();
+        const filterTask = loadDiseasesSelect();
         loadAllArticle(0);
+        await filterTask;
       }
     </script>
 </head>
@@ -36,7 +37,7 @@
     <div class="row g-3">
       <div class="col-md-7">
         <div class="position-relative">
-          <input onkeyup="loadAllArticle(0)" id="param" type="text" class="form-control pe-5" placeholder="Tìm kiếm bài viết theo tiêu đề, nội dung...">
+          <input onkeyup="debounceLoadAllArticle()" id="param" type="text" class="form-control pe-5" placeholder="Tìm kiếm bài viết theo tiêu đề, nội dung...">
           <button class="btn btn-sm btn-link position-absolute end-0 top-50 translate-middle-y text-secondary">
             <i class="bi bi-search"></i>
           </button>

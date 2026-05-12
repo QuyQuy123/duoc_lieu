@@ -6,7 +6,6 @@ import com.web.exception.MessageException;
 import com.web.repository.ArticleRepository;
 import com.web.utils.SlugGenerator;
 import com.web.utils.UserUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.Writer;
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 @Service
@@ -35,8 +33,8 @@ public class ArticleService {
         );
     }
 
-    public Page<Article> getAllPublic(String search, Long diseasesId, Pageable pageable) {
-        return articleRepository.findAllByParam(
+    public Page<ArticleRepository.ArticlePublicListView> getAllPublic(String search, Long diseasesId, Pageable pageable) {
+        return articleRepository.findPublicList(
                 (search == null || search.trim().isEmpty()) ? null : search.trim(),
                 diseasesId,
                 pageable

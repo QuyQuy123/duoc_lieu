@@ -52,10 +52,17 @@ async function loadFamiliesSelect() {
 }
 
 var size = 8;
+var plantSearchTimeout = null;
+
+function debounceLoadAllPlant() {
+  clearTimeout(plantSearchTimeout);
+  plantSearchTimeout = setTimeout(() => loadAllPlant(0), 300);
+}
+
 async function loadAllPlant(page) {
   const param = document.getElementById("param").value || "";
-  const diseases = $("#diseases").val()
-  const families = $("#families").val()
+  const diseases = $("#diseases").val() || []
+  const families = $("#families").val() || []
   const sort = document.getElementById("sort").value
   var url = `/api/plant/public/all?page=${page}&size=${size}&sort=${sort}`;
   var payload = {
@@ -63,8 +70,7 @@ async function loadAllPlant(page) {
     "familiesId":families,
     "diseases":diseases,
   }
-  console.log(payload);
-  
+
   const response = await fetch(url, {
     method: 'POST',
     headers: new Headers({
@@ -85,11 +91,11 @@ async function loadAllPlant(page) {
     <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
         <div class="card h-100 shadow-sm">
         <div class="ratio ratio-4x3 bg-light d-flex align-items-center justify-content-center">
-            <a href="/plant-detail/${list[i].slug}"><img src="${d.image}" class="img-blog-list"></a>
+            <a href="/plant-detail/${list[i].slug}"><img src="${d.image}" class="img-blog-list" loading="lazy"></a>
         </div>
         <div class="card-body">
             <h5 class="card-title">${d.name}</h5>
-            <p class="card-text text-muted mb-1">Họ: ${d.families?.name}</p>
+            <p class="card-text text-muted mb-1">Họ: ${d.familyName == null?'Không có thông tin': d.familyName}</p>
             <p class="card-text text-muted">Tên khoa học: ${d.scientificName == null?'': d.scientificName}</p>
         </div>
         <div class="card-footer bg-white">
@@ -104,14 +110,14 @@ async function loadAllPlant(page) {
      <div class="card shadow-sm">
         <div class="row g-0">
         <div class="col-sm-4 bg-light d-flex align-items-center justify-content-center" style="min-height:200px;">
-             <a href="/plant-detail/${list[i].slug}"><img src="${d.image}" style="width:100%"></a>
+             <a href="/plant-detail/${list[i].slug}"><img src="${d.image}" style="width:100%" loading="lazy"></a>
         </div>
         <div class="col-sm-8">
             <div class="card-body">
-            <h5 class="card-title">Tên cây</h5>
-            <p class="card-text text-muted">Tên khoa học: Không có thông tin</p>
+            <h5 class="card-title">${d.name}</h5>
+            <p class="card-text text-muted">Tên khoa học: ${d.scientificName == null?'Không có thông tin': d.scientificName}</p>
             <div class="row mb-3">
-                <div class="col-6 small text-muted">Họ: ${d.families?.name}</div>
+                <div class="col-6 small text-muted">Họ: ${d.familyName == null?'Không có thông tin': d.familyName}</div>
                 <div class="col-6 small text-muted">Chi: ${d.genus == null?'Không có thông tin': d.genus}</div>
                 <div class="col-6 small text-muted">Bộ phận dùng: ${d.partsUsed == null?'Không có thông tin': d.partsUsed}</div>
             </div>

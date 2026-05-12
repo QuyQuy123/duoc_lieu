@@ -38,7 +38,7 @@ public class PlantApi {
     }
 
     @PostMapping("/public/all")
-    public Page<Plant> getAll(Pageable pageable,@RequestBody PlantSearch plantSearch) {
+    public Page<PlantRepository.PlantPublicListView> getAll(Pageable pageable,@RequestBody PlantSearch plantSearch) {
         return plantService.getAllByPublic(pageable, plantSearch);
     }
 

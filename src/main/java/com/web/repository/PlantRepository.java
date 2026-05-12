@@ -4,13 +4,11 @@ import com.web.dto.PlantImp;
 import com.web.enums.PlantStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.web.dto.response.PlantWithMedia;
 import com.web.entity.Plant;
 
 import java.time.LocalDateTime;
@@ -58,6 +56,47 @@ public interface PlantRepository extends JpaRepository<Plant, Long>, JpaSpecific
     Page<PlantAdminListView> searchAdminList(
             @Param("q") String q,
             @Param("familiesId") Long familiesId,
+            @Param("plantStatus") PlantStatus plantStatus,
+            Pageable pageable
+    );
+
+    @Query(value = """
+            SELECT DISTINCT p.id as id,
+                   p.image as image,
+                   p.name as name,
+                   p.slug as slug,
+                   p.scientificName as scientificName,
+                   f.name as familyName,
+                   p.genus as genus,
+                   p.partsUsed as partsUsed
+            FROM Plant p
+            LEFT JOIN p.families f
+            LEFT JOIN p.plantDiseases pd
+            WHERE p.plantStatus = :plantStatus
+            AND (:q IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.scientificName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.otherNames) LIKE LOWER(CONCAT('%', :q, '%')))
+            AND (:familiesEmpty = true OR f.id IN :familiesId)
+            AND (:diseasesEmpty = true OR pd.diseases.id IN :diseases)
+            """,
+            countQuery = """
+            SELECT COUNT(DISTINCT p.id)
+            FROM Plant p
+            LEFT JOIN p.families f
+            LEFT JOIN p.plantDiseases pd
+            WHERE p.plantStatus = :plantStatus
+            AND (:q IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.scientificName) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(p.otherNames) LIKE LOWER(CONCAT('%', :q, '%')))
+            AND (:familiesEmpty = true OR f.id IN :familiesId)
+            AND (:diseasesEmpty = true OR pd.diseases.id IN :diseases)
+            """)
+    Page<PlantPublicListView> searchPublicList(
+            @Param("q") String q,
+            @Param("familiesEmpty") boolean familiesEmpty,
+            @Param("familiesId") List<Long> familiesId,
+            @Param("diseasesEmpty") boolean diseasesEmpty,
+            @Param("diseases") List<Long> diseases,
             @Param("plantStatus") PlantStatus plantStatus,
             Pageable pageable
     );
@@ -118,5 +157,16 @@ public interface PlantRepository extends JpaRepository<Plant, Long>, JpaSpecific
         default String getStatusLabel() {
             return getPlantStatus() == null ? "" : getPlantStatus().getLabel();
         }
+    }
+
+    interface PlantPublicListView {
+        Long getId();
+        String getImage();
+        String getName();
+        String getSlug();
+        String getScientificName();
+        String getFamilyName();
+        String getGenus();
+        String getPartsUsed();
     }
 }

@@ -78,7 +78,7 @@ $( document ).ready(function() {
         <h3 class="mb-3">Liên kết nhanh</h3>
         <ul class="list-unstyled">
           <li><a href="/">Trang chủ</a></li>
-          <li><a href="/plants">Cây dược liệu</a></li>
+          <li><a href="/plant">Cây dược liệu</a></li>
           <li><a href="/articles">Bài viết</a></li>
           <li><a href="/research">Nghiên cứu</a></li>
           <li><a href="/experts">Chuyên gia</a></li>

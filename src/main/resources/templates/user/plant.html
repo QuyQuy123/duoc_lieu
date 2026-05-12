@@ -15,16 +15,15 @@
     <script src="js/plant.js"></script>
     <script>
       window.onload = async function(){
-        await loadDiseasesSelect();
-        await loadFamiliesSelect();
-        clickSelect();
         const params = new URLSearchParams(window.location.search);
         const searchQ = params.get('search');
         if (searchQ) {
           const input = document.getElementById("param");
           if (input) input.value = searchQ;
         }
+        const filterTasks = [loadDiseasesSelect(), loadFamiliesSelect()];
         loadAllPlant(0);
+        await Promise.all(filterTasks);
       }
     </script>
 </head>
@@ -45,7 +44,7 @@
     <div class="row g-3">
       <!-- Search input -->
       <div class="col-12 col-md-4 position-relative">
-        <input onkeyup="loadAllPlant(0)" type="text" class="form-control pe-5" placeholder="Tìm kiếm cây dược liệu theo tên, hoạt chất, công dụng..." id="param" />
+        <input onkeyup="debounceLoadAllPlant()" type="text" class="form-control pe-5" placeholder="Tìm kiếm cây dược liệu theo tên, hoạt chất, công dụng..." id="param" />
         <button class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 text-secondary" id="searchBtn">
           <i class="bi bi-search"></i>
         </button>
