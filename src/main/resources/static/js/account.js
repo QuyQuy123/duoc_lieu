@@ -40,6 +40,22 @@ async function sendLoginRequestToBackend(accessToken) {
 }
 
 
+function setLoginLoading(isLoading) {
+    const overlay = document.getElementById("login-loading-overlay");
+    const submitButton = document.getElementById("login-submit-btn");
+
+    if (overlay) {
+        overlay.classList.toggle("d-none", !isLoading);
+    }
+
+    if (submitButton) {
+        submitButton.disabled = isLoading;
+        submitButton.innerHTML = isLoading
+            ? `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Đang đăng nhập...`
+            : "Đăng nhập";
+    }
+}
+
 async function login() {
     var url = '/api/login'
     var username = document.getElementById("username").value
@@ -48,37 +64,54 @@ async function login() {
         "username": username,
         "password": password,
     }
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: new Headers({
-            'Content-Type': 'application/json'
-        }),
-        body: JSON.stringify(user)
-    });
-    var result = await response.json();
-    if (response.status < 300) {
-        localStorage.setItem("user", JSON.stringify(result.user));
-        localStorage.setItem("token", result.token);
-        if (result.user.authorities.name === "ROLE_ADMIN") {
-            window.location.href = 'admin/dashboard';
+    setLoginLoading(true);
+    let redirecting = false;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(user)
+        });
+        var result = await response.json();
+        if (response.status < 300) {
+            localStorage.setItem("user", JSON.stringify(result.user));
+            localStorage.setItem("token", result.token);
+            if (result.user.authorities.name === "ROLE_ADMIN") {
+                redirecting = true;
+                window.location.href = 'admin/dashboard';
+                return;
+            }
+            if (result.user.authorities.name === "ROLE_USER") {
+                redirecting = true;
+                window.location.href = 'index';
+                return;
+            }
         }
-        if (result.user.authorities.name === "ROLE_USER") {
-            window.location.href = 'index';
+        if (response.status == exceptionCode) {
+            if (result.errorCode == 300) {
+                swal({
+                    title: "Thông báo",
+                    text: "Tài khoản chưa được kích hoạt, đi tới kích hoạt tài khoản!",
+                    type: "warning"
+                }, function() {
+                    window.location.href = 'confirm?email=' + username
+                });
+            } else {
+                toastr.warning(result.defaultMessage);
+                document.getElementById("error-section").style.display = 'block';
+                document.getElementById("errormess").innerText = result.defaultMessage;
+            }
         }
-    }
-    if (response.status == exceptionCode) {
-        if (result.errorCode == 300) {
-            swal({
-                title: "Thông báo",
-                text: "Tài khoản chưa được kích hoạt, đi tới kích hoạt tài khoản!",
-                type: "warning"
-            }, function() {
-                window.location.href = 'confirm?email=' + username
-            });
-        } else {
-            toastr.warning(result.defaultMessage);
-            document.getElementById("error-section").style.display = 'block';
-            document.getElementById("errormess").innerText = result.defaultMessage;
+    } catch (error) {
+        toastr.warning("Không thể kết nối tới máy chủ. Vui lòng thử lại.");
+        document.getElementById("error-section").style.display = 'block';
+        document.getElementById("errormess").innerText = "Không thể kết nối tới máy chủ. Vui lòng thử lại.";
+    } finally {
+        if (!redirecting) {
+            setLoginLoading(false);
         }
     }
 }

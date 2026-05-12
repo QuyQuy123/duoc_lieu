@@ -1,5 +1,17 @@
 var token = localStorage.getItem("token");
 var currentUser = null;
+loadDisableDevtoolsScript();
+
+function loadDisableDevtoolsScript() {
+    if (document.querySelector('script[src="/js/disable-devtools.js"]')) {
+        return;
+    }
+    var script = document.createElement("script");
+    script.src = "/js/disable-devtools.js";
+    script.defer = true;
+    document.head.appendChild(script);
+}
+
 try {
     currentUser = JSON.parse(localStorage.getItem("user"));
 } catch (e) {

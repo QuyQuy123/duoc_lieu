@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -17,6 +18,10 @@ public class AdminController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    private static final long DASHBOARD_CACHE_MS = 30_000L;
+    private volatile DashboardData cachedDashboardData;
+    private volatile long cachedDashboardAt;
 
     @RequestMapping(value = {"/create-article"}, method = RequestMethod.GET)
     public String createArticle() {
@@ -50,41 +55,98 @@ public class AdminController {
 
     @RequestMapping(value = {"/dashboard"}, method = RequestMethod.GET)
     public String dashboard(Model model) {
-        DashboardStats stats = loadDashboardStats();
+        DashboardData dashboardData = loadDashboardData();
+        DashboardStats stats = dashboardData.getStats();
 
         model.addAttribute("plantCount", stats.getPlantCount());
         model.addAttribute("articleCount", stats.getArticleCount());
         model.addAttribute("researchCount", stats.getResearchCount());
         model.addAttribute("userCount", stats.getUserCount());
         model.addAttribute("totalViews", stats.getTotalViews());
-        model.addAttribute("recentPlants", loadRecentItems("""
-                select name as title, slug, image, created_at
-                from plants
-                order by created_at desc
-                limit 5
-                """));
-        model.addAttribute("recentArticles", loadRecentItems("""
-                select title, slug, image_banner as image, created_at
-                from articles
-                order by created_at desc
-                limit 5
-                """));
-        model.addAttribute("recentResearches", loadRecentItems("""
-                select title, slug, image_banner as image, created_at
-                from research
-                order by created_at desc
-                limit 5
-                """));
-        model.addAttribute("recentUsers", loadRecentItems("""
-                select coalesce(nullif(fullname, ''), email, username) as title,
-                       null as slug,
-                       null as image,
-                       created_date as created_at
-                from users
-                order by created_date desc
-                limit 5
-                """));
+        model.addAttribute("recentPlants", dashboardData.getRecentPlants());
+        model.addAttribute("recentArticles", dashboardData.getRecentArticles());
+        model.addAttribute("recentResearches", dashboardData.getRecentResearches());
+        model.addAttribute("recentUsers", dashboardData.getRecentUsers());
         return "admin/dashboard";
+    }
+
+    private DashboardData loadDashboardData() {
+        long now = System.currentTimeMillis();
+        DashboardData cache = cachedDashboardData;
+        if (cache != null && now - cachedDashboardAt < DASHBOARD_CACHE_MS) {
+            return cache;
+        }
+
+        DashboardStats stats = loadDashboardStats();
+        List<DashboardItem> recentPlants = new ArrayList<>();
+        List<DashboardItem> recentArticles = new ArrayList<>();
+        List<DashboardItem> recentResearches = new ArrayList<>();
+        List<DashboardItem> recentUsers = new ArrayList<>();
+
+        String sql = """
+                select * from (
+                    select 'plant' as source, name as title, slug, image, created_at
+                    from plants
+                    order by created_at desc
+                    limit 5
+                ) plants_recent
+                union all
+                select * from (
+                    select 'article' as source, title, slug, image_banner as image, created_at
+                    from articles
+                    order by created_at desc
+                    limit 5
+                ) articles_recent
+                union all
+                select * from (
+                    select 'research' as source, title, slug, image_banner as image, created_at
+                    from research
+                    order by created_at desc
+                    limit 5
+                ) research_recent
+                union all
+                select * from (
+                    select 'user' as source,
+                           coalesce(nullif(fullname, ''), email, username) as title,
+                           null as slug,
+                           null as image,
+                           created_date as created_at
+                    from users
+                    order by created_date desc
+                    limit 5
+                ) users_recent
+                """;
+
+        jdbcTemplate.query(sql, rs -> {
+            DashboardItem item = new DashboardItem(
+                    rs.getString("title"),
+                    rs.getString("slug"),
+                    rs.getString("image"),
+                    toLocalDateTime(rs.getTimestamp("created_at"))
+            );
+
+            switch (rs.getString("source")) {
+                case "plant":
+                    recentPlants.add(item);
+                    break;
+                case "article":
+                    recentArticles.add(item);
+                    break;
+                case "research":
+                    recentResearches.add(item);
+                    break;
+                case "user":
+                    recentUsers.add(item);
+                    break;
+                default:
+                    break;
+            }
+        });
+
+        DashboardData data = new DashboardData(stats, recentPlants, recentArticles, recentResearches, recentUsers);
+        cachedDashboardData = data;
+        cachedDashboardAt = now;
+        return data;
     }
 
     private DashboardStats loadDashboardStats() {
@@ -109,17 +171,50 @@ public class AdminController {
         ));
     }
 
-    private List<DashboardItem> loadRecentItems(String sql) {
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new DashboardItem(
-                rs.getString("title"),
-                rs.getString("slug"),
-                rs.getString("image"),
-                toLocalDateTime(rs.getTimestamp("created_at"))
-        ));
-    }
-
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toLocalDateTime();
+    }
+
+    public static class DashboardData {
+        private final DashboardStats stats;
+        private final List<DashboardItem> recentPlants;
+        private final List<DashboardItem> recentArticles;
+        private final List<DashboardItem> recentResearches;
+        private final List<DashboardItem> recentUsers;
+
+        public DashboardData(
+                DashboardStats stats,
+                List<DashboardItem> recentPlants,
+                List<DashboardItem> recentArticles,
+                List<DashboardItem> recentResearches,
+                List<DashboardItem> recentUsers
+        ) {
+            this.stats = stats;
+            this.recentPlants = recentPlants;
+            this.recentArticles = recentArticles;
+            this.recentResearches = recentResearches;
+            this.recentUsers = recentUsers;
+        }
+
+        public DashboardStats getStats() {
+            return stats;
+        }
+
+        public List<DashboardItem> getRecentPlants() {
+            return recentPlants;
+        }
+
+        public List<DashboardItem> getRecentArticles() {
+            return recentArticles;
+        }
+
+        public List<DashboardItem> getRecentResearches() {
+            return recentResearches;
+        }
+
+        public List<DashboardItem> getRecentUsers() {
+            return recentUsers;
+        }
     }
 
     public static class DashboardStats {

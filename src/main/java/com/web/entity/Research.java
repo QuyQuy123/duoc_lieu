@@ -19,7 +19,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "research")
+@Table(name = "research", indexes = {
+        @Index(name = "idx_research_created_at", columnList = "created_at")
+})
 public class Research extends BaseEntity {
 
     @Column(nullable = false)

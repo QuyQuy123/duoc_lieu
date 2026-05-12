@@ -18,7 +18,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "plants")
+@Table(name = "plants", indexes = {
+        @Index(name = "idx_plants_created_at", columnList = "created_at")
+})
 public class Plant extends BaseEntity {
 
     private String name;

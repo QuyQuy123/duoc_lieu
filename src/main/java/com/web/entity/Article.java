@@ -16,7 +16,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "articles")
+@Table(name = "articles", indexes = {
+        @Index(name = "idx_articles_created_at", columnList = "created_at")
+})
 public class Article extends BaseEntity {
 
     @Column(nullable = false)

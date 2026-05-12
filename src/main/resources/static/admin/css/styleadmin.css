@@ -43,6 +43,22 @@
       background: #fff;
       border-bottom: 1px solid #e5e7eb;
     }
+    .admin-avatar-default {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #16a34a, #047857);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(22, 163, 74, .22);
+    }
+    .admin-avatar-default svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.4;
+    }
     .search-box {
       position: relative;
       max-width: 260px;

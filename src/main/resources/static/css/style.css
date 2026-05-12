@@ -1,4 +1,23 @@
 body { font-family: system-ui, sans-serif; }
+    .login-loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, .76);
+      backdrop-filter: blur(3px);
+    }
+    .login-loading-box {
+      min-width: 220px;
+      padding: 28px 32px;
+      border-radius: 18px;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 18px 40px rgba(6, 95, 70, .18);
+      border: 1px solid rgba(22, 163, 74, .15);
+    }
     header.navbar { box-shadow: 0 2px 6px rgba(0,0,0,.08); }
     .navbar-brand span { font-weight: 700; font-size: 1.25rem; color: #065f46; }
     .logo-circle {

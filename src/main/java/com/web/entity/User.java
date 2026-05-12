@@ -17,7 +17,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username"),
+        @Index(name = "idx_users_created_date", columnList = "created_date")
+})
 @Getter
 @Setter
 @EntityListeners(AuditingEntityListener.class)
@@ -50,7 +53,7 @@ public class User{
     private UserType userType;
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "created_date", updatable = false)
     @JsonFormat(pattern = "HH:mm dd/MM/yy")
     private LocalDateTime createdDate;
 

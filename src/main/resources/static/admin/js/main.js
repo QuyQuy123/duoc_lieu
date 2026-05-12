@@ -1,5 +1,17 @@
 var token = localStorage.getItem("token");
 var currentUser = null;
+loadDisableDevtoolsScript();
+
+function loadDisableDevtoolsScript() {
+    if (document.querySelector('script[src="/js/disable-devtools.js"]')) {
+        return;
+    }
+    var script = document.createElement("script");
+    script.src = "/js/disable-devtools.js";
+    script.defer = true;
+    document.head.appendChild(script);
+}
+
 try {
     currentUser = JSON.parse(localStorage.getItem("user"));
 } catch (e) {
@@ -63,8 +75,10 @@ var navbarAdmin =
         <div class="d-flex align-items-center">
           <button class="btn btn-light rounded-circle me-3"><i data-lucide="bell"></i></button>
           <div class="dropdown">
-            <button class="btn btn-light rounded-circle" data-bs-toggle="dropdown">
-              <img src="https://via.placeholder.com/32" alt="Admin" class="rounded-circle">
+            <button class="btn btn-light rounded-circle p-1" data-bs-toggle="dropdown" aria-label="Tài khoản admin">
+              <span class="admin-avatar-default">
+                <i data-lucide="user"></i>
+              </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><h6 class="dropdown-header">Tài khoản của tôi</h6></li>
